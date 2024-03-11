@@ -63,84 +63,30 @@ Document::Document(const string& path)
     }
 }
 
-optional<SearchResultLocation> Document::find(const string& search, const SearchResultLocation& previous) const
+vector<SearchResultLocation> Document::search(const string& search) const
 {
-    for (i32 i = previous.pageIndex; i < _pages.size(); i++)
+    vector<SearchResultLocation> results;
+
+    if (search.empty())
+    {
+        return results;
+    }
+
+    for (size_t i = 0; i < _pages.size(); i++)
     {
         const Page& page = _pages.at(i);
 
-        SearchResultLocation next = previous;
-        next.pageIndex = i;
-        if (i != previous.pageIndex)
+        vector<SearchResultLocation> pageResults = page.search(search);
+
+        for (SearchResultLocation& pageResult : pageResults)
         {
-            next.blockIndex = 0;
+            pageResult.pageIndex = i;
         }
 
-        optional<SearchResultLocation> pageResult = page.find(search, next);
-
-        if (pageResult)
-        {
-            return pageResult;
-        }
+        results.insert(results.end(), pageResults.begin(), pageResults.end());
     }
 
-    for (i32 i = 0; i <= previous.pageIndex; i++)
-    {
-        const Page& page = _pages.at(i);
-
-        SearchResultLocation next = previous;
-        next.pageIndex = i;
-        next.blockIndex = 0;
-
-        optional<SearchResultLocation> pageResult = page.find(search, next);
-
-        if (pageResult)
-        {
-            return pageResult;
-        }
-    }
-
-    return {};
-}
-
-optional<SearchResultLocation> Document::rfind(const string& search, const SearchResultLocation& previous) const
-{
-    for (i32 i = previous.pageIndex; i >= 0; i--)
-    {
-        const Page& page = _pages.at(i);
-
-        SearchResultLocation next = previous;
-        next.pageIndex = i;
-        if (i != previous.pageIndex)
-        {
-            next.blockIndex = page.blocks().size() - 1;
-        }
-
-        optional<SearchResultLocation> pageResult = page.rfind(search, next);
-
-        if (pageResult)
-        {
-            return pageResult;
-        }
-    }
-
-    for (i32 i = _pages.size() - 1; i >= previous.pageIndex; i--)
-    {
-        const Page& page = _pages.at(i);
-
-        SearchResultLocation next = previous;
-        next.pageIndex = i;
-        next.blockIndex = page.blocks().size() - 1;
-
-        optional<SearchResultLocation> pageResult = page.rfind(search, next);
-
-        if (pageResult)
-        {
-            return pageResult;
-        }
-    }
-
-    return {};
+    return results;
 }
 
 const vector<Page>& Document::pages() const

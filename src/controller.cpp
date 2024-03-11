@@ -24,8 +24,6 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 #include <sys/ioctl.h>
 #include <ncurses.h>
 
-// TODO: Search between pages doesn't seem to work
-
 Controller::Controller()
     : emptyPage(0, 0)
     , quit(false)
@@ -33,6 +31,7 @@ Controller::Controller()
     , searchResultLocation("", 0)
 {
     setlocale(LC_ALL, "");
+
     initscr();
     noecho();
     cbreak();
@@ -41,7 +40,8 @@ Controller::Controller()
     keypad(stdscr, true);
     curs_set(0);
 
-    init_pair(1, -1, COLOR_BLUE);
+    init_pair(1, COLOR_BLUE, -1);
+    init_pair(2, COLOR_RED, -1);
 }
 
 Controller::~Controller()
@@ -180,9 +180,14 @@ void Controller::drawScreen() const
 
                 if (highlight)
                 {
-                    attron(COLOR_PAIR(1));
+                    // TODO: Figure out when this is the active search
+                    bool activeSearch = false;
+
+                    attron(COLOR_PAIR(activeSearch ? 2 : 1));
+                    attron(A_REVERSE);
                     mvaddstr(screenY, x, part.c_str());
-                    attroff(COLOR_PAIR(1));
+                    attroff(A_REVERSE);
+                    attroff(COLOR_PAIR(activeSearch ? 2 : 1));
                 }
                 else
                 {
@@ -430,19 +435,32 @@ void Controller::panRight()
 
 void Controller::nextSearchResult()
 {
-    optional<SearchResultLocation> documentResult = activeDocument().find(
-        search,
-        searchResultLocation.documentName != activeDocumentName
-            ? seedSearchResultLocation()
-            : searchResultLocation
-    );
+    vector<SearchResultLocation> results = activeDocument().search(search);
 
-    if (!documentResult)
+    if (results.empty())
     {
         return;
     }
 
-    searchResultLocation = *documentResult;
+    for (SearchResultLocation& result : results)
+    {
+        result.documentName = activeDocumentName;
+    }
+
+    SearchResultLocation currentLocation =
+        activeDocumentName == searchResultLocation.documentName
+            ? searchResultLocation
+            : seedSearchResultLocation();
+
+    searchResultLocation = results.front();
+    for (const SearchResultLocation& result : results)
+    {
+        if (result > currentLocation)
+        {
+            searchResultLocation = result;
+            break;
+        }
+    }
 
     i32 previousPageIndex = activeView().pageIndex;
     activeView().pageIndex = searchResultLocation.pageIndex;
@@ -456,19 +474,34 @@ void Controller::nextSearchResult()
 
 void Controller::previousSearchResult()
 {
-    optional<SearchResultLocation> documentResult = activeDocument().rfind(
-        search,
-        searchResultLocation.documentName != activeDocumentName
-            ? seedSearchResultLocation()
-            : searchResultLocation
-    );
+    vector<SearchResultLocation> results = activeDocument().search(search);
 
-    if (!documentResult)
+    if (results.empty())
     {
         return;
     }
 
-    searchResultLocation = *documentResult;
+    for (SearchResultLocation& result : results)
+    {
+        result.documentName = activeDocumentName;
+    }
+
+    SearchResultLocation currentLocation =
+        activeDocumentName == searchResultLocation.documentName
+            ? searchResultLocation
+            : seedSearchResultLocation();
+
+    optional<SearchResultLocation> previous;
+    for (const SearchResultLocation& result : results)
+    {
+        if (result >= currentLocation)
+        {
+            searchResultLocation = previous ? *previous : results.back();
+            break;
+        }
+
+        previous = result;
+    }
 
     i32 previousPageIndex = activeView().pageIndex;
     activeView().pageIndex = searchResultLocation.pageIndex;

@@ -26,8 +26,7 @@ class Block
 public:
     Block(f64 left, f64 right, f64 top, f64 bottom, const string& text);
 
-    optional<SearchResultLocation> find(const string& search, const SearchResultLocation& previous) const;
-    optional<SearchResultLocation> rfind(const string& search, const SearchResultLocation& previous) const;
+    vector<SearchResultLocation> search(const string& search) const;
 
     i32 width() const;
     i32 height() const;

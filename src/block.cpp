@@ -28,34 +28,32 @@ Block::Block(f64 left, f64 right, f64 top, f64 bottom, const string& text)
 
 }
 
-optional<SearchResultLocation> Block::find(const string& search, const SearchResultLocation& previous) const
+vector<SearchResultLocation> Block::search(const string& search) const
 {
-    size_t result = _text.find(search, previous.characterIndex + search.size());
+    vector<SearchResultLocation> results;
 
-    if (result == string::npos)
+    if (search.empty())
     {
-        return {};
+        return results;
     }
 
-    SearchResultLocation location = previous;
-    location.characterIndex = result;
+    size_t offset = 0;
 
-    return location;
-}
-
-optional<SearchResultLocation> Block::rfind(const string& search, const SearchResultLocation& previous) const
-{
-    size_t result = _text.rfind(search, previous.characterIndex);
-
-    if (result == string::npos)
+    while (true)
     {
-        return {};
+        size_t index = _text.find(search, offset);
+
+        if (index == string::npos)
+        {
+            break;
+        }
+
+        offset = index + search.size();
+
+        results.push_back(SearchResultLocation("", 0, 0, index));
     }
 
-    SearchResultLocation location = previous;
-    location.characterIndex = result;
-
-    return location;
+    return results;
 }
 
 i32 Block::width() const

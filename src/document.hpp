@@ -27,8 +27,7 @@ public:
     Document();
     Document(const string& path);
 
-    optional<SearchResultLocation> find(const string& search, const SearchResultLocation& previous) const;
-    optional<SearchResultLocation> rfind(const string& search, const SearchResultLocation& previous) const;
+    vector<SearchResultLocation> search(const string& search) const;
 
     const vector<Page>& pages() const;
 

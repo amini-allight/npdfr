@@ -31,3 +31,118 @@ SearchResultLocation::SearchResultLocation(
 {
 
 }
+
+bool SearchResultLocation::operator==(const SearchResultLocation& rhs) const
+{
+    return documentName == rhs.documentName &&
+        pageIndex == rhs.pageIndex &&
+        blockIndex == rhs.blockIndex &&
+        characterIndex == rhs.characterIndex;
+}
+
+bool SearchResultLocation::operator!=(const SearchResultLocation& rhs) const
+{
+    return !(*this == rhs);
+}
+
+bool SearchResultLocation::operator>(const SearchResultLocation& rhs) const
+{
+    if (pageIndex > rhs.pageIndex)
+    {
+        return true;
+    }
+    else if (pageIndex < rhs.pageIndex)
+    {
+        return false;
+    }
+    else
+    {
+        if (blockIndex > rhs.blockIndex)
+        {
+            return true;
+        }
+        else if (blockIndex < rhs.blockIndex)
+        {
+            return false;
+        }
+        else
+        {
+            if (characterIndex > rhs.characterIndex)
+            {
+                return true;
+            }
+            else if (characterIndex < rhs.characterIndex)
+            {
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+}
+
+bool SearchResultLocation::operator<(const SearchResultLocation& rhs) const
+{
+    if (pageIndex < rhs.pageIndex)
+    {
+        return true;
+    }
+    else if (pageIndex > rhs.pageIndex)
+    {
+        return false;
+    }
+    else
+    {
+        if (blockIndex < rhs.blockIndex)
+        {
+            return true;
+        }
+        else if (blockIndex > rhs.blockIndex)
+        {
+            return false;
+        }
+        else
+        {
+            if (characterIndex < rhs.characterIndex)
+            {
+                return true;
+            }
+            else if (characterIndex > rhs.characterIndex)
+            {
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+}
+
+bool SearchResultLocation::operator>=(const SearchResultLocation& rhs) const
+{
+    return *this > rhs || *this == rhs;
+}
+
+bool SearchResultLocation::operator<=(const SearchResultLocation& rhs) const
+{
+    return *this < rhs || *this == rhs;
+}
+
+strong_ordering SearchResultLocation::operator<=>(const SearchResultLocation& rhs) const
+{
+    if (*this == rhs)
+    {
+        return strong_ordering::equal;
+    }
+    else if (*this < rhs)
+    {
+        return strong_ordering::less;
+    }
+    else
+    {
+        return strong_ordering::greater;
+    }
+}

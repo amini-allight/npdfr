@@ -31,84 +31,30 @@ void Page::add(const Block& block)
     _blocks.push_back(block);
 }
 
-optional<SearchResultLocation> Page::find(const string& search, const SearchResultLocation& previous) const
+vector<SearchResultLocation> Page::search(const string& search) const
 {
-    for (i32 i = previous.blockIndex; i < _blocks.size(); i++)
+    vector<SearchResultLocation> results;
+
+    if (search.empty())
+    {
+        return results;
+    }
+
+    for (size_t i = 0; i < _blocks.size(); i++)
     {
         const Block& block = _blocks.at(i);
 
-        SearchResultLocation next = previous;
-        next.blockIndex = i;
-        if (i != previous.blockIndex)
+        vector<SearchResultLocation> blockResults = block.search(search);
+
+        for (SearchResultLocation& blockResult : blockResults)
         {
-            next.characterIndex = 0;
+            blockResult.blockIndex = i;
         }
 
-        optional<SearchResultLocation> blockResult = block.find(search, next);
-
-        if (blockResult)
-        {
-            return blockResult;
-        }
+        results.insert(results.end(), blockResults.begin(), blockResults.end());
     }
 
-    for (i32 i = 0; i <= previous.blockIndex; i++)
-    {
-        const Block& block = _blocks.at(i);
-
-        SearchResultLocation next = previous;
-        next.blockIndex = i;
-        next.characterIndex = 0;
-
-        optional<SearchResultLocation> blockResult = block.find(search, next);
-
-        if (blockResult)
-        {
-            return blockResult;
-        }
-    }
-
-    return {};
-}
-
-optional<SearchResultLocation> Page::rfind(const string& search, const SearchResultLocation& previous) const
-{
-    for (i32 i = previous.blockIndex; i >= 0; i--)
-    {
-        const Block& block = _blocks.at(i);
-
-        SearchResultLocation next = previous;
-        next.blockIndex = i;
-        if (i != previous.blockIndex)
-        {
-            next.characterIndex = block.text().size();
-        }
-
-        optional<SearchResultLocation> blockResult = block.rfind(search, next);
-
-        if (blockResult)
-        {
-            return blockResult;
-        }
-    }
-
-    for (i32 i = _blocks.size() - 1; i >= previous.pageIndex; i--)
-    {
-        const Block& block = _blocks.at(i);
-
-        SearchResultLocation next = previous;
-        next.blockIndex = i;
-        next.characterIndex = block.text().size();
-
-        optional<SearchResultLocation> blockResult = block.rfind(search, next);
-
-        if (blockResult)
-        {
-            return blockResult;
-        }
-    }
-
-    return {};
+    return results;
 }
 
 i32 Page::width() const

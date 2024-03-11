@@ -29,6 +29,14 @@ struct SearchResultLocation
         i32 characterIndex = 0
     );
 
+    bool operator==(const SearchResultLocation& rhs) const;
+    bool operator!=(const SearchResultLocation& rhs) const;
+    bool operator>(const SearchResultLocation& rhs) const;
+    bool operator<(const SearchResultLocation& rhs) const;
+    bool operator>=(const SearchResultLocation& rhs) const;
+    bool operator<=(const SearchResultLocation& rhs) const;
+    strong_ordering operator<=>(const SearchResultLocation& rhs) const;
+
     string documentName;
     i32 pageIndex;
     i32 blockIndex;

@@ -28,8 +28,7 @@ public:
 
     void add(const Block& block);
 
-    optional<SearchResultLocation> find(const string& search, const SearchResultLocation& previous) const;
-    optional<SearchResultLocation> rfind(const string& search, const SearchResultLocation& previous) const;
+    vector<SearchResultLocation> search(const string& search) const;
 
     i32 width() const;
     i32 height() const;
