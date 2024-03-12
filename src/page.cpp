@@ -61,7 +61,7 @@ i32 Page::width() const
 {
     i32 width = 0;
 
-    for (const string& line : lines())
+    for (const vector<string>& line : grid())
     {
         width = max<i32>(width, line.size());
     }
@@ -71,7 +71,7 @@ i32 Page::width() const
 
 i32 Page::height() const
 {
-    return lines().size();
+    return grid().size();
 }
 
 const vector<Block>& Page::blocks() const
@@ -148,7 +148,7 @@ static tuple<i32, i32> recursiveLocate(const vector<Block>& blocks, size_t index
     return { x, y };
 }
 
-vector<string> Page::lines() const
+vector<vector<string>> Page::grid() const
 {
     vector<tuple<i32, i32>> offsets(_blocks.size());
 
@@ -169,23 +169,32 @@ vector<string> Page::lines() const
         height = max(height, y + block.height());
     }
 
-    vector<string> lines(height, string(width, ' '));
+    vector<vector<string>> grid(height, vector<string>(width, " "));
 
     for (size_t i = 0; i < _blocks.size(); i++)
     {
         const Block& block = _blocks.at(i);
         const auto [ offsetX, offsetY ] = offsets.at(i);
 
-        vector<string> blockLines = block.lines();
+        vector<vector<string>> blockGrid = block.grid();
 
-        for (i32 y = 0; y < blockLines.size(); y++)
+        for (i32 y = 0; y < blockGrid.size(); y++)
         {
-            for (i32 x = 0; x < blockLines.front().size(); x++)
+            for (i32 x = 0; x < blockGrid.front().size(); x++)
             {
-                lines.at(offsetY + y).at(offsetX + x) = blockLines.at(y).at(x);
+                grid.at(offsetY + y).at(offsetX + x) = blockGrid.at(y).at(x);
             }
         }
     }
 
-    return lines;
+    return grid;
+}
+
+tuple<i32, i32> Page::locateSearchInGrid(const SearchResultLocation& location) const
+{
+    auto [ blockX, blockY ] = recursiveLocate(_blocks, location.blockIndex);
+
+    auto [ x, y ] = _blocks.at(location.blockIndex).locateSearchInGrid(location);
+
+    return { blockX + x, blockY + y };
 }

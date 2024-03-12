@@ -19,12 +19,12 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 #include "charwise.hpp"
 #include <cassert>
 
-static bool isPrimaryByte(char c)
+bool isPrimaryByte(char c)
 {
     return (c & 0xc0) != 0x80;
 }
 
-static vector<string> splitUTF8(const string& s)
+vector<string> splitUTF8(const string& s)
 {
     vector<string> chars;
 
@@ -43,7 +43,7 @@ static vector<string> splitUTF8(const string& s)
     return chars;
 }
 
-static string joinUTF8(const vector<string>& chars)
+string joinUTF8(const vector<string>& chars)
 {
     string s;
 

@@ -88,19 +88,30 @@ void Controller::drawScreen() const
 
     const Page& page = activePage();
 
-    vector<string> lines = page.lines();
+    i32 activeSearchX = -1;
+    i32 activeSearchY = -1;
+
+    if (
+        searchResultLocation.documentName == activeDocumentName &&
+        searchResultLocation.pageIndex == activeView().pageIndex
+    )
+    {
+        tie(activeSearchX, activeSearchY) = page.locateSearchInGrid(searchResultLocation);
+    }
+
+    vector<vector<string>> grid = page.grid();
 
     for (i32 screenY = 0; screenY < height - 1; screenY++)
     {
         i32 lineIndex = screenY + activeView().scrollIndex;
 
         // Scrolled past end
-        if (lineIndex >= lines.size())
+        if (lineIndex >= grid.size())
         {
             break;
         }
 
-        const string& line = lines.at(lineIndex);
+        string line = joinUTF8(grid.at(lineIndex));
 
         // Panned past end
         if (charwiseSize(line) <= activeView().panIndex)
@@ -109,6 +120,7 @@ void Controller::drawScreen() const
         }
 
         vector<pair<i32, i32>> highlights;
+        vector<bool> activeHighlight;
 
         // Find highlighted regions
         if (search != "")
@@ -127,24 +139,33 @@ void Controller::drawScreen() const
                 offset = index + charwiseSize(search);
 
                 highlights.push_back({ index, offset });
+                activeHighlight.push_back(
+                    index == activeSearchX &&
+                    lineIndex == activeSearchY
+                );
             }
         }
 
+        // Draw whole line
         if (highlights.empty())
         {
             string truncatedLine = charwiseSubstring(line, activeView().panIndex, charwiseSize(line) - activeView().panIndex);
 
             mvaddstr(screenY, 0, truncatedLine.c_str());
         }
+        // Draw line in highlighted parts
         else
         {
             vector<string> parts;
-            vector<bool> highlighted;
+            vector<i32> highlighted;
 
             i32 readHead = activeView().panIndex;
 
-            for (const auto& [ start, end ] : highlights)
+            for (size_t i = 0; i < highlights.size(); i++)
             {
+                const auto& [ start, end ] = highlights.at(i);
+                bool active = activeHighlight.at(i);
+
                 if (end < activeView().panIndex)
                 {
                     continue;
@@ -152,49 +173,54 @@ void Controller::drawScreen() const
                 else if (start < activeView().panIndex)
                 {
                     parts.push_back(charwiseSubstring(line, activeView().panIndex, end - activeView().panIndex));
-                    highlighted.push_back(true);
+                    highlighted.push_back(active ? 2 : 1);
 
                     readHead = end;
                 }
                 else
                 {
                     parts.push_back(charwiseSubstring(line, readHead, start - readHead));
-                    highlighted.push_back(false);
+                    highlighted.push_back(0);
 
                     parts.push_back(charwiseSubstring(line, start, end - start));
-                    highlighted.push_back(true);
+                    highlighted.push_back(active ? 2 : 1);
 
                     readHead = end;
                 }
             }
 
             parts.push_back(charwiseSubstring(line, readHead, charwiseSize(line) - readHead));
-            highlighted.push_back(false);
+            highlighted.push_back(0);
 
             i32 x = 0;
 
             for (size_t i = 0; i < parts.size(); i++)
             {
                 const string& part = parts.at(i);
-                bool highlight = highlighted.at(i);
+                i32 highlight = highlighted.at(i);
 
-                if (highlight)
+                switch (highlight)
                 {
-                    // TODO: Figure out when this is the active search
-                    bool activeSearch = false;
-
-                    attron(COLOR_PAIR(activeSearch ? 2 : 1));
+                case 0 :
+                    mvaddstr(screenY, x, part.c_str());
+                    break;
+                case 1 :
+                    attron(COLOR_PAIR(1));
                     attron(A_REVERSE);
                     mvaddstr(screenY, x, part.c_str());
                     attroff(A_REVERSE);
-                    attroff(COLOR_PAIR(activeSearch ? 2 : 1));
-                }
-                else
-                {
+                    attroff(COLOR_PAIR(1));
+                    break;
+                case 2 :
+                    attron(COLOR_PAIR(2));
+                    attron(A_REVERSE);
                     mvaddstr(screenY, x, part.c_str());
+                    attroff(A_REVERSE);
+                    attroff(COLOR_PAIR(2));
+                    break;
                 }
 
-                x += part.size();
+                x += charwiseSize(part);
             }
         }
     }

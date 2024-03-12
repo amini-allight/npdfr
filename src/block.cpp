@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 */
 #include "block.hpp"
+#include "charwise.hpp"
 
 Block::Block(f64 left, f64 right, f64 top, f64 bottom, const string& text)
     : _left(left)
@@ -41,14 +42,14 @@ vector<SearchResultLocation> Block::search(const string& search) const
 
     while (true)
     {
-        size_t index = _text.find(search, offset);
+        size_t index = charwiseFind(_text, search, offset);
 
         if (index == string::npos)
         {
             break;
         }
 
-        offset = index + search.size();
+        offset = index + charwiseSize(search);
 
         results.push_back(SearchResultLocation("", 0, 0, index));
     }
@@ -120,26 +121,51 @@ const string& Block::text() const
     return _text;
 }
 
-vector<string> Block::lines() const
+vector<vector<string>> Block::grid() const
 {
-    vector<string> lines(height(), string(width(), ' '));
+    vector<vector<string>> grid(height(), vector<string>(width(), " "));
 
     i32 x = 0;
     i32 y = 0;
 
-    for (char c : _text)
+    for (const string& c : splitUTF8(_text))
     {
-        if (c == '\n')
+        if (c == "\n")
         {
             x = 0;
             y++;
         }
         else
         {
-            lines.at(y).at(x) = c;
+            grid.at(y).at(x) = c;
             x++;
         }
     }
 
-    return lines;
+    return grid;
+}
+
+tuple<i32, i32> Block::locateSearchInGrid(const SearchResultLocation& location) const
+{
+    vector<string> chars = splitUTF8(_text);
+
+    i32 x = 0;
+    i32 y = 0;
+
+    for (size_t i = 0; i < location.characterIndex; i++)
+    {
+        const string& c = chars.at(i);
+
+        if (c == "\n")
+        {
+            x = 0;
+            y++;
+        }
+        else
+        {
+            x++;
+        }
+    }
+
+    return { x, y };
 }

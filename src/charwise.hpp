@@ -20,6 +20,9 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 
 #include "types.hpp"
 
+bool isPrimaryByte(char c);
+vector<string> splitUTF8(const string& s);
+string joinUTF8(const vector<string>& chars);
 size_t charwiseSize(const string& s);
 string charwiseSubstring(const string& s, size_t offset, size_t size);
 size_t charwiseFind(const string& s, const string& search, size_t offset);
