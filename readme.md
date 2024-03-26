@@ -10,7 +10,7 @@ I use a lot of PDFs for running tabletop RPGs and often need to search through t
 
 Really intended for use on Linux only, but should be reasonably easy to adapt to other operating systems.
 
-## Build Instructions
+## How to Build
 
 Make sure the following dependencies are available:
 
@@ -24,9 +24,23 @@ Make sure the following dependencies are available:
 
 Then run `./setup.sh` in the project root directory.
 
+## How to Install
+
+Run `./install.sh` in the project root directory. You must have `sudo` installed and you will be prompted for your password.
+
+## How to Uninstall
+
+Delete `/opt/npdfr` and `/usr/bin/npdfr`.
+
 ## Usage Instructions
 
-Run `./run.sh /path/to/file.pdf` in the project root directory. You can open multiple PDFs by supplying multiple file names.
+If you have installed the program globally run:
+
+```sh
+npdfr /path/to/file.pdf
+```
+
+Otherwise run `./run.sh /path/to/file.pdf` n the project root directory. You can open multiple PDFs by supplying multiple file names.
 
 ## Keybindings
 

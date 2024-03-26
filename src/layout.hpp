@@ -18,35 +18,7 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 */
 #pragma once
 
-#include <map>
-#include <string>
-#include <vector>
-#include <format>
-#include <algorithm>
-#include <iostream>
-#include <cstdlib>
-#include <csignal>
-#include <cstdint>
-#include <cmath>
-#include <clocale>
-#include <cwchar>
-#include <random>
-#include <streambuf>
-#include <fstream>
-#include <optional>
-#include <filesystem>
+#include "types.hpp"
+#include "block.hpp"
 
-using namespace std;
-
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-
-typedef int8_t i8;
-typedef int16_t i16;
-typedef int32_t i32;
-typedef int64_t i64;
-
-typedef float f32;
-typedef double f64;
+tuple<i32, i32> recursiveLocate(const vector<Block>& blocks, size_t index);

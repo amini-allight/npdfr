@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 */
 #include "page.hpp"
-#include "constants.hpp"
+#include "layout.hpp"
 
 Page::Page(f64 width, f64 height)
     : _width(width)
@@ -77,75 +77,6 @@ i32 Page::height() const
 const vector<Block>& Page::blocks() const
 {
     return _blocks;
-}
-
-static bool verticalOverlap(const Block& a, const Block& b)
-{
-    return !(a.left() > b.right() || a.right() < b.left());
-}
-
-static bool horizontalOverlap(const Block& a, const Block& b)
-{
-    return !(a.top() > b.bottom() || a.bottom() < b.top());
-}
-
-static tuple<i32, i32> recursiveLocate(const vector<Block>& blocks, size_t index)
-{
-    const Block& block = blocks.at(index);
-
-    f64 top = block.top();
-    f64 left = block.left();
-
-    size_t nearestTopIndex = 0;
-    optional<Block> nearestTop;
-    size_t nearestLeftIndex = 0;
-    optional<Block> nearestLeft;
-
-    for (size_t i = 0; i < blocks.size(); i++)
-    {
-        if (i == index)
-        {
-            continue;
-        }
-
-        const Block& candidate = blocks.at(i);
-
-        if (
-            verticalOverlap(block, candidate) &&
-            candidate.bottom() <= top &&
-            (!nearestTop || candidate.bottom() > nearestTop->bottom())
-        )
-        {
-            nearestTopIndex = i;
-            nearestTop = candidate;
-        }
-
-        if (
-            horizontalOverlap(block, candidate) &&
-            candidate.right() <= left &&
-            (!nearestLeft || candidate.right() > nearestLeft->right())
-        )
-        {
-            nearestLeftIndex = i;
-            nearestLeft = candidate;
-        }
-    }
-
-    i32 x = 0;
-
-    if (nearestLeft)
-    {
-        x = get<0>(recursiveLocate(blocks, nearestLeftIndex)) + nearestLeft->width() + blockHorizontalSpacer;
-    }
-
-    i32 y = 0;
-
-    if (nearestTop)
-    {
-        y = get<1>(recursiveLocate(blocks, nearestTopIndex)) + nearestTop->height() + blockVerticalSpacer;
-    }
-
-    return { x, y };
 }
 
 vector<vector<string>> Page::grid() const

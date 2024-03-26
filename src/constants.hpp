@@ -29,3 +29,8 @@ static const size_t maxSearchLength = 1024;
 
 static const u32 blockVerticalSpacer = 1;
 static const u32 blockHorizontalSpacer = 4;
+
+static const char* const localExtractorPath = "./tools/extract.py";
+static const char* const localExtractorMarkerPath = "./tools/npdfr-tools-marker";
+static const char* const globalExtractorPath = "/opt/npdfr/tools/extract.py";
+static const char* const globalExtractorMarkerPath = "/opt/npdfr/tools/npdfr-tools-marker";

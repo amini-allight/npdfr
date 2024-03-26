@@ -18,6 +18,7 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 */
 #include "document.hpp"
 #include "tools.hpp"
+#include "constants.hpp"
 
 #include <json/json.h>
 
@@ -28,9 +29,24 @@ Document::Document()
 
 Document::Document(const string& path)
 {
+    string extractorPath;
+
+    if (filesystem::exists(localExtractorMarkerPath))
+    {
+        extractorPath = localExtractorPath;
+    }
+    else if (filesystem::exists(globalExtractorMarkerPath))
+    {
+        extractorPath = globalExtractorPath;
+    }
+    else
+    {
+        throw runtime_error("Could not find extraction tool, npdfr is not correctly installed.");
+    }
+
     string tmpPath = randomTemporaryPath() + ".json";
 
-    system(format("python ./tools/extract.py \"{}\" \"{}\"", path, tmpPath).c_str());
+    system(format("python \"{}\" \"{}\" \"{}\"", extractorPath, path, tmpPath).c_str());
 
     string serial = getFile(tmpPath);
 
