@@ -40,7 +40,7 @@ If you have installed the program globally run:
 npdfr /path/to/file.pdf
 ```
 
-Otherwise run `./run.sh /path/to/file.pdf` n the project root directory. You can open multiple PDFs by supplying multiple file names.
+Otherwise run `./run.sh /path/to/file.pdf` in the project root directory. You can open multiple PDFs by supplying multiple file names.
 
 ## Keybindings
 
