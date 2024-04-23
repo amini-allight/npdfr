@@ -2,6 +2,10 @@
 
 npdfr (ncurses PDF reader) is a command-line PDF reader prioritizing fast searches.
 
+![](doc/icon.png)
+
+![](doc/example.png)
+
 ## Why?
 
 I use a lot of PDFs for running tabletop RPGs and often need to search through them. This isn't nearly as snappy as it could be because of the tendency of PDF readers to lazy-render the PDF. I wanted a command-line reader that wouldn't do this and would respond to search queries more immediately.
@@ -14,7 +18,7 @@ Really intended for use on Linux only, but should be reasonably easy to adapt to
 
 Make sure the following dependencies are available:
 
-- `python`
+- `python` 3.8+
 - `pip`
 - `virtualenv`
 - `cmake`
@@ -26,11 +30,7 @@ Then run `./setup.sh` in the project root directory.
 
 ## How to Install
 
-Run `./install.sh` in the project root directory. You must have `sudo` installed and you will be prompted for your password.
-
-## How to Uninstall
-
-Delete `/opt/npdfr` and `/usr/bin/npdfr`.
+Run `./install.sh` in the project root directory. You must have `sudo` and `rsync` installed and you will be prompted for your password. You can pass an optional argument to install to set the installation prefix, e.g. `./install.sh /usr/local`. If you do not pass this argument it will default to `/usr`.
 
 ## Usage Instructions
 
@@ -46,6 +46,7 @@ Otherwise run `./run.sh /path/to/file.pdf` in the project root directory. You ca
 
 The keybindings are mostly the same as the `less` utility.
 
+|-------------------------------|---------------------|
 | Key                           | Action              |
 |-------------------------------|---------------------|
 | g, home                       | Go to first page    |
@@ -65,6 +66,7 @@ The keybindings are mostly the same as the `less` utility.
 | N                             | Find previous       |
 | /                             | Search forwards     |
 | ?                             | Search backwards    |
+|-------------------------------|---------------------|
 
 ## Credit & License
 

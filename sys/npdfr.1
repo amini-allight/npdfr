@@ -1,0 +1,54 @@
+.TH man 1 "23 Apr 2024" "0.1.0" "npdfr man page"
+.SH NAME
+npdfr \- A command-line PDF reader.
+.SH SYNOPSIS
+npdfr FILES...
+.SH DESCRIPTION
+npdfr is a command-line PDF reader prioritizes fast searches.
+.SH COMMANDS
+g or HOME
+	Go to first page.
+G or END
+	Go to last page.
+u or U
+	Go to start of page.
+d or D
+	Go to end of page.
+TAB
+	Go to the next document.
+SHIFT-TAB
+	Go to the previous document.
+SPACE or f or F or PAGEDOWN
+	Go to the next page.
+b or B or PAGEUP
+	Go to the previous page.
+h or H or LEFTARROW
+	Pan the view to the left.
+e or E or j or J or ENTER or DOWNARROW
+	Scroll the view down.
+y or Y or k or K or UPARROW
+	Scroll the view up.
+l or L or RIGHTARROW
+	Pan the view to the right.
+q or Q
+	Quit the program.
+n
+	Find next occurrence of search pattern, in the direction of search.
+N
+	Find previous occurrence of search pattern, in the direction of search.
+/pattern
+	Search for "pattern" forwards in the document from the current location.
+?pattern
+	Search for "pattern" backwards in the document from the current location.
+.SH OPTIONS
+npdfr does not have any command line options beyond supplying the paths of one or more PDF files to open.
+.SH BUGS
+Please report all bugs at https://github.com/amini-allight/npdfr/issues
+.SH WWW
+https://amini-allight.org/npdfr
+.SH AUTHOR
+Amini Allight <amini.allight@protonmail.com>
+.SH COPYRIGHT
+Copyright (C) 2024 Amini Allight
+
+npdfr is free software; you can redistribute it and/or modify it under the terms of the GPL version 3 or later.

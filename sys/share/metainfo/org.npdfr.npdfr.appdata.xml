@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>org.npdfr.npdfr.desktop</id>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0-or-later</project_license>
+    <name>npdfr</name>
+    <summary>ncurses-based command-line PDF reader</summary>
+    <description>
+        <p>
+            npdfr (ncurses PDF reader) is a command-line PDF reader prioritizing fast searches.
+        </p>
+    </description>
+    <launchable type="desktop-id">org.npdfr.npdfr.desktop</launchable>
+    <screenshots>
+        <screenshot type="default">
+            <image>https://amini-allight.org/npdfr/static/img/example.png</image>
+        </screenshot>
+    </screenshots>
+    <keywords>
+        <keyword>pdf</keyword>
+    </keywords>
+    <url type="homepage">https://amini-allight.org/npdfr</url>
+    <url type="bugtracker">https://github.com/amini-allight/npdfr/issues</url>
+    <provides>
+        <binary>npdfr</binary>
+    </provides>
+    <developer_name>Amini Allight</developer_name>
+    <update_contact>amini.allight@protonmail.com</update_contact>
+    <releases>
+    </releases>
+    <content_rating type="oars-1.1"/>
+</component>

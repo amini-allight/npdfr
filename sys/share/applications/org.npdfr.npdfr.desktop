@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=npdfr
+GenericName=Terminal PDF Reader
+Comment=ncurses-based command-line PDF reader
+Icon=org.npdfr.npdfr
+Exec=npdfr %F
+Terminal=true
+MimeType=application/pdf;application/x-gzpdf;application/x-bzpdf;application/x-pdf;
+Categories=Viewer;ConsoleOnly;
+Keywords=pdf;
