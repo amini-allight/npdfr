@@ -46,7 +46,6 @@ Otherwise run `./run.sh /path/to/file.pdf` in the project root directory. You ca
 
 The keybindings are mostly the same as the `less` utility.
 
-|-------------------------------|---------------------|
 | Key                           | Action              |
 |-------------------------------|---------------------|
 | g, home                       | Go to first page    |
@@ -66,7 +65,6 @@ The keybindings are mostly the same as the `less` utility.
 | N                             | Find previous       |
 | /                             | Search forwards     |
 | ?                             | Search backwards    |
-|-------------------------------|---------------------|
 
 ## Credit & License
 
