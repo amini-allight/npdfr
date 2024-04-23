@@ -2,7 +2,7 @@
 
 npdfr (ncurses PDF reader) is a command-line PDF reader prioritizing fast searches.
 
-![](doc/icon.png =256x256)
+<img src="doc/icon.png" width="256"/>
 
 ![](doc/example.png)
 
