@@ -26,7 +26,9 @@ struct SearchResultLocation
         const string& documentName,
         i32 pageIndex,
         i32 blockIndex = 0,
-        i32 characterIndex = 0
+        i32 characterIndex = 0,
+        i32 x = 0,
+        i32 y = 0
     );
 
     bool operator==(const SearchResultLocation& rhs) const;
@@ -41,4 +43,6 @@ struct SearchResultLocation
     i32 pageIndex;
     i32 blockIndex;
     i32 characterIndex;
+    i32 x;
+    i32 y;
 };

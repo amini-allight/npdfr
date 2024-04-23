@@ -19,6 +19,7 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 #pragma once
 
 #include "types.hpp"
+#include "search_result_location.hpp"
 
 struct DocumentView
 {
@@ -27,4 +28,6 @@ struct DocumentView
     i32 pageIndex;
     i32 scrollIndex;
     i32 panIndex;
+    size_t searchResultIndex;
+    vector<SearchResultLocation> searchResults;
 };

@@ -28,7 +28,6 @@ Controller::Controller()
     : emptyPage(0, 0)
     , quit(false)
     , searchForwards(true)
-    , searchResultLocation("", 0)
 {
     setlocale(LC_ALL, "");
 
@@ -88,18 +87,7 @@ void Controller::drawScreen() const
 
     const Page& page = activePage();
 
-    i32 activeSearchX = -1;
-    i32 activeSearchY = -1;
-
-    if (
-        searchResultLocation.documentName == activeDocumentName &&
-        searchResultLocation.pageIndex == activeView().pageIndex
-    )
-    {
-        tie(activeSearchX, activeSearchY) = page.locateSearchInGrid(searchResultLocation);
-    }
-
-    vector<vector<string>> grid = page.grid();
+    const vector<vector<string>>& grid = page.grid();
 
     for (i32 screenY = 0; screenY < height - 1; screenY++)
     {
@@ -125,24 +113,20 @@ void Controller::drawScreen() const
         // Find highlighted regions
         if (search != "")
         {
-            size_t offset = 0;
-
-            while (true)
+            for (const SearchResultLocation& searchResult : searchResults())
             {
-                size_t index = charwiseFind(line, search, offset);
-
-                if (index == string::npos)
+                if (searchResult.pageIndex != activeView().pageIndex)
                 {
-                    break;
+                    continue;
                 }
 
-                offset = index + charwiseSize(search);
+                if (searchResult.y != lineIndex)
+                {
+                    continue;
+                }
 
-                highlights.push_back({ index, offset });
-                activeHighlight.push_back(
-                    index == activeSearchX &&
-                    lineIndex == activeSearchY
-                );
+                highlights.push_back({ searchResult.x, searchResult.x + charwiseSize(search) });
+                activeHighlight.push_back(activeSearchResult() == searchResult);
             }
         }
 
@@ -151,7 +135,7 @@ void Controller::drawScreen() const
         {
             string truncatedLine = charwiseSubstring(line, activeView().panIndex, charwiseSize(line) - activeView().panIndex);
 
-            mvaddstr(screenY, 0, truncatedLine.c_str());
+            writeToScreen(screenY, 0, truncatedLine.c_str());
         }
         // Draw line in highlighted parts
         else
@@ -202,19 +186,19 @@ void Controller::drawScreen() const
                 switch (highlight)
                 {
                 case 0 :
-                    mvaddstr(screenY, x, part.c_str());
+                    writeToScreen(screenY, x, part.c_str());
                     break;
                 case 1 :
                     attron(COLOR_PAIR(1));
                     attron(A_REVERSE);
-                    mvaddstr(screenY, x, part.c_str());
+                    writeToScreen(screenY, x, part.c_str());
                     attroff(A_REVERSE);
                     attroff(COLOR_PAIR(1));
                     break;
                 case 2 :
                     attron(COLOR_PAIR(2));
                     attron(A_REVERSE);
-                    mvaddstr(screenY, x, part.c_str());
+                    writeToScreen(screenY, x, part.c_str());
                     attroff(A_REVERSE);
                     attroff(COLOR_PAIR(2));
                     break;
@@ -225,15 +209,31 @@ void Controller::drawScreen() const
         }
     }
 
-    string prompt = format(
-        "{} ({}/{}) {}",
-        activeDocumentName,
-        activeView().pageIndex + 1,
-        activeDocument().pages().size(),
-        search
-    );
+    string prompt;
 
-    mvaddstr(height - 1, 0, prompt.c_str());
+    if (search.empty())
+    {
+        prompt = format(
+            "{} ({}/{})",
+            activeDocumentName,
+            activeView().pageIndex + 1,
+            activeDocument().pages().size()
+        );
+    }
+    else
+    {
+        prompt = format(
+            "{} ({}/{}) {} ({}/{})",
+            activeDocumentName,
+            activeView().pageIndex + 1,
+            activeDocument().pages().size(),
+            search,
+            activeView().searchResultIndex + 1,
+            searchResults().size()
+        );
+    }
+
+    writeToScreen(height - 1, 0, prompt.c_str());
 }
 
 void Controller::handleInput()
@@ -334,6 +334,11 @@ void Controller::handleInput()
         startBackwardSearch();
         break;
     }
+}
+
+void Controller::writeToScreen(i32 y, i32 x, const string& s) const
+{
+    mvaddstr(y, x, charwiseSubstring(s, 0, min<size_t>(charwiseSize(s), width - x)).c_str());
 }
 
 void Controller::goToStartOfDocument()
@@ -461,81 +466,49 @@ void Controller::panRight()
 
 void Controller::nextSearchResult()
 {
-    vector<SearchResultLocation> results = activeDocument().search(search);
-
-    if (results.empty())
+    if (activeView().searchResultIndex + 1 == activeView().searchResults.size())
     {
-        return;
+        activeView().searchResultIndex = 0;
+    }
+    else
+    {
+        activeView().searchResultIndex++;
     }
 
-    for (SearchResultLocation& result : results)
+    activeView().pageIndex = activeSearchResult().pageIndex;
+
+    if (activeSearchResult().y < activeView().scrollIndex || activeSearchResult().y >= activeView().scrollIndex + (height - 1))
     {
-        result.documentName = activeDocumentName;
+        activeView().scrollIndex = max((activeSearchResult().y + 1) - (height - 1), 0);
     }
 
-    SearchResultLocation currentLocation =
-        activeDocumentName == searchResultLocation.documentName
-            ? searchResultLocation
-            : seedSearchResultLocation();
-
-    searchResultLocation = results.front();
-    for (const SearchResultLocation& result : results)
+    if (activeSearchResult().x < activeView().panIndex || activeSearchResult().x + charwiseSize(search) >= activeView().panIndex + width)
     {
-        if (result > currentLocation)
-        {
-            searchResultLocation = result;
-            break;
-        }
-    }
-
-    i32 previousPageIndex = activeView().pageIndex;
-    activeView().pageIndex = searchResultLocation.pageIndex;
-
-    if (activeView().pageIndex != previousPageIndex)
-    {
-        activeView().scrollIndex = 0;
-        activeView().panIndex = 0;
+        activeView().panIndex = max<i32>((activeSearchResult().x + charwiseSize(search)) - width, 0);
     }
 }
 
 void Controller::previousSearchResult()
 {
-    vector<SearchResultLocation> results = activeDocument().search(search);
-
-    if (results.empty())
+    if (activeView().searchResultIndex == 0)
     {
-        return;
+        activeView().searchResultIndex = activeView().searchResults.size() - 1;
+    }
+    else
+    {
+        activeView().searchResultIndex--;
     }
 
-    for (SearchResultLocation& result : results)
+    activeView().pageIndex = activeSearchResult().pageIndex;
+
+    if (activeSearchResult().y < activeView().scrollIndex || activeSearchResult().y >= activeView().scrollIndex + (height - 1))
     {
-        result.documentName = activeDocumentName;
+        activeView().scrollIndex = max((activeSearchResult().y + 1) - (height - 1), 0);
     }
 
-    SearchResultLocation currentLocation =
-        activeDocumentName == searchResultLocation.documentName
-            ? searchResultLocation
-            : seedSearchResultLocation();
-
-    optional<SearchResultLocation> previous;
-    for (const SearchResultLocation& result : results)
+    if (activeSearchResult().x < activeView().panIndex || activeSearchResult().x + charwiseSize(search) >= activeView().panIndex + width)
     {
-        if (result >= currentLocation)
-        {
-            searchResultLocation = previous ? *previous : results.back();
-            break;
-        }
-
-        previous = result;
-    }
-
-    i32 previousPageIndex = activeView().pageIndex;
-    activeView().pageIndex = searchResultLocation.pageIndex;
-
-    if (activeView().pageIndex != previousPageIndex)
-    {
-        activeView().scrollIndex = 0;
-        activeView().panIndex = 0;
+        activeView().panIndex = max<i32>((activeSearchResult().x + charwiseSize(search)) - width, 0);
     }
 }
 
@@ -545,15 +518,34 @@ void Controller::startForwardSearch()
 
     move(height - 1, 0);
     clrtoeol();
-    mvaddstr(height - 1, 0, "/");
+    writeToScreen(height - 1, 0, "/");
     echo();
     mvgetnstr(height - 1, 1, buffer.data(), maxSearchLength);
     noecho();
 
     search = buffer.data();
     searchForwards = true;
-    searchResultLocation = seedSearchResultLocation();
-    nextSearchResult();
+
+    for (auto& [ name, view ] : views)
+    {
+        view.searchResults = documents.at(name).search(search);
+
+        for (SearchResultLocation& searchResult : view.searchResults)
+        {
+            searchResult.documentName = name;
+        }
+
+        for (size_t i = 0; i < view.searchResults.size(); i++)
+        {
+            const SearchResultLocation& searchResult = view.searchResults.at(i);
+
+            if (searchResult.pageIndex == view.pageIndex)
+            {
+                view.searchResultIndex = i;
+                break;
+            }
+        }
+    }
 }
 
 void Controller::startBackwardSearch()
@@ -562,18 +554,37 @@ void Controller::startBackwardSearch()
 
     move(height - 1, 0);
     clrtoeol();
-    mvaddstr(height - 1, 0, "?");
+    writeToScreen(height - 1, 0, "?");
     echo();
     mvgetnstr(height - 1, 1, buffer.data(), maxSearchLength);
     noecho();
 
     search = buffer.data();
     searchForwards = false;
-    searchResultLocation = seedSearchResultLocation();
-    previousSearchResult();
+
+    for (auto& [ name, view ] : views)
+    {
+        view.searchResults = documents.at(name).search(search);
+
+        for (SearchResultLocation& searchResult : view.searchResults)
+        {
+            searchResult.documentName = name;
+        }
+
+        for (size_t i = 0; i < view.searchResults.size(); i++)
+        {
+            const SearchResultLocation& searchResult = view.searchResults.at(i);
+
+            if (searchResult.pageIndex == view.pageIndex)
+            {
+                view.searchResultIndex = i;
+                break;
+            }
+        }
+    }
 }
 
-SearchResultLocation Controller::seedSearchResultLocation() const
+SearchResultLocation Controller::seedSearchResult() const
 {
     return SearchResultLocation(activeDocumentName, activeView().pageIndex);
 }
@@ -624,4 +635,16 @@ const DocumentView& Controller::activeView() const
     return views.contains(activeDocumentName)
         ? views.at(activeDocumentName)
         : emptyView;
+}
+
+const vector<SearchResultLocation>& Controller::searchResults() const
+{
+    return activeView().searchResults;
+}
+
+SearchResultLocation Controller::activeSearchResult() const
+{
+    return activeView().searchResults.empty()
+        ? seedSearchResult()
+        : activeView().searchResults.at(activeView().searchResultIndex);
 }

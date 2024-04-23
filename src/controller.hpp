@@ -54,11 +54,11 @@ private:
     bool quit;
     string search;
     bool searchForwards;
-    SearchResultLocation searchResultLocation;
 
     void updateSize();
     void drawScreen() const;
     void handleInput();
+    void writeToScreen(i32 y, i32 x, const string& s) const;
 
     void goToStartOfDocument();
     void goToEndOfDocument();
@@ -77,7 +77,7 @@ private:
     void startForwardSearch();
     void startBackwardSearch();
 
-    SearchResultLocation seedSearchResultLocation() const;
+    SearchResultLocation seedSearchResult() const;
     i32 maxPan() const;
     i32 maxScroll() const;
     i32 pageWidth() const;
@@ -86,4 +86,6 @@ private:
     const Document& activeDocument() const;
     DocumentView& activeView();
     const DocumentView& activeView() const;
+    const vector<SearchResultLocation>& searchResults() const;
+    SearchResultLocation activeSearchResult() const;
 };

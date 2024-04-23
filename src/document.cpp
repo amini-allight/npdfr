@@ -75,6 +75,8 @@ Document::Document(const string& path)
             page.add(block);
         }
 
+        page.generateGrid();
+
         _pages.push_back(page);
     }
 }

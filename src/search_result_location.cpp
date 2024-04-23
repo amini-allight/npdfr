@@ -22,12 +22,16 @@ SearchResultLocation::SearchResultLocation(
     const string& documentName,
     i32 pageIndex,
     i32 blockIndex,
-    i32 characterIndex
+    i32 characterIndex,
+    i32 x,
+    i32 y
 )
     : documentName(documentName)
     , pageIndex(pageIndex)
     , blockIndex(blockIndex)
     , characterIndex(characterIndex)
+    , x(x)
+    , y(y)
 {
 
 }
@@ -47,76 +51,54 @@ bool SearchResultLocation::operator!=(const SearchResultLocation& rhs) const
 
 bool SearchResultLocation::operator>(const SearchResultLocation& rhs) const
 {
-    if (pageIndex > rhs.pageIndex)
+    if (y > rhs.y)
     {
         return true;
     }
-    else if (pageIndex < rhs.pageIndex)
+    else if (y < rhs.y)
     {
         return false;
     }
     else
     {
-        if (blockIndex > rhs.blockIndex)
+        if (x > rhs.x)
         {
             return true;
         }
-        else if (blockIndex < rhs.blockIndex)
+        else if (x < rhs.x)
         {
             return false;
         }
         else
         {
-            if (characterIndex > rhs.characterIndex)
-            {
-                return true;
-            }
-            else if (characterIndex < rhs.characterIndex)
-            {
-                return false;
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
     }
 }
 
 bool SearchResultLocation::operator<(const SearchResultLocation& rhs) const
 {
-    if (pageIndex < rhs.pageIndex)
+    if (y < rhs.y)
     {
         return true;
     }
-    else if (pageIndex > rhs.pageIndex)
+    else if (y > rhs.y)
     {
         return false;
     }
     else
     {
-        if (blockIndex < rhs.blockIndex)
+        if (x < rhs.x)
         {
             return true;
         }
-        else if (blockIndex > rhs.blockIndex)
+        else if (x > rhs.x)
         {
             return false;
         }
         else
         {
-            if (characterIndex < rhs.characterIndex)
-            {
-                return true;
-            }
-            else if (characterIndex > rhs.characterIndex)
-            {
-                return false;
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
     }
 }

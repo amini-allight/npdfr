@@ -16,13 +16,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 */
-#include "document_view.hpp"
+#pragma once
 
-DocumentView::DocumentView()
-    : pageIndex(0)
-    , scrollIndex(0)
-    , panIndex(0)
-    , searchResultIndex(0)
-{
+#include "types.hpp"
 
-}
+bool isWhitespace(const string& c);
+string trimWhitespace(const string& s);

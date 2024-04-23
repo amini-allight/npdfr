@@ -18,6 +18,7 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 */
 #include "page.hpp"
 #include "layout.hpp"
+#include "whitespace.hpp"
 
 Page::Page(f64 width, f64 height)
     : _width(width)
@@ -29,6 +30,54 @@ Page::Page(f64 width, f64 height)
 void Page::add(const Block& block)
 {
     _blocks.push_back(block);
+}
+
+void Page::generateGrid()
+{
+    vector<tuple<i32, i32>> offsets(_blocks.size());
+
+    for (size_t i = 0; i < _blocks.size(); i++)
+    {
+        offsets.at(i) = recursiveLocate(_blocks, i);
+    }
+
+    i32 width = 0;
+    i32 height = 0;
+
+    for (size_t i = 0; i < _blocks.size(); i++)
+    {
+        const Block& block = _blocks.at(i);
+        const auto [ x, y ] = offsets.at(i);
+
+        width = max(width, x + block.width());
+        height = max(height, y + block.height());
+    }
+
+    _grid = vector<vector<string>>(height, vector<string>(width, " "));
+
+    for (size_t i = 0; i < _blocks.size(); i++)
+    {
+        const Block& block = _blocks.at(i);
+        const auto [ offsetX, offsetY ] = offsets.at(i);
+
+        vector<vector<string>> blockGrid = block.grid();
+
+        for (i32 y = 0; y < blockGrid.size(); y++)
+        {
+            for (i32 x = 0; x < blockGrid.front().size(); x++)
+            {
+                const string& src = blockGrid.at(y).at(x);;
+                string& dst = _grid.at(offsetY + y).at(offsetX + x);
+
+                if (isWhitespace(src) && !isWhitespace(dst))
+                {
+                    continue;
+                }
+
+                dst = src;
+            }
+        }
+    }
 }
 
 vector<SearchResultLocation> Page::search(const string& search) const
@@ -49,10 +98,13 @@ vector<SearchResultLocation> Page::search(const string& search) const
         for (SearchResultLocation& blockResult : blockResults)
         {
             blockResult.blockIndex = i;
+            tie(blockResult.x, blockResult.y) = locateSearchInGrid(blockResult);
         }
 
         results.insert(results.end(), blockResults.begin(), blockResults.end());
     }
+
+    sort(results.begin(), results.end());
 
     return results;
 }
@@ -79,46 +131,9 @@ const vector<Block>& Page::blocks() const
     return _blocks;
 }
 
-vector<vector<string>> Page::grid() const
+const vector<vector<string>>& Page::grid() const
 {
-    vector<tuple<i32, i32>> offsets(_blocks.size());
-
-    for (size_t i = 0; i < _blocks.size(); i++)
-    {
-        offsets.at(i) = recursiveLocate(_blocks, i);
-    }
-
-    i32 width = 0;
-    i32 height = 0;
-
-    for (size_t i = 0; i < _blocks.size(); i++)
-    {
-        const Block& block = _blocks.at(i);
-        const auto [ x, y ] = offsets.at(i);
-
-        width = max(width, x + block.width());
-        height = max(height, y + block.height());
-    }
-
-    vector<vector<string>> grid(height, vector<string>(width, " "));
-
-    for (size_t i = 0; i < _blocks.size(); i++)
-    {
-        const Block& block = _blocks.at(i);
-        const auto [ offsetX, offsetY ] = offsets.at(i);
-
-        vector<vector<string>> blockGrid = block.grid();
-
-        for (i32 y = 0; y < blockGrid.size(); y++)
-        {
-            for (i32 x = 0; x < blockGrid.front().size(); x++)
-            {
-                grid.at(offsetY + y).at(offsetX + x) = blockGrid.at(y).at(x);
-            }
-        }
-    }
-
-    return grid;
+    return _grid;
 }
 
 tuple<i32, i32> Page::locateSearchInGrid(const SearchResultLocation& location) const

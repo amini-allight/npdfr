@@ -27,6 +27,7 @@ public:
     Page(f64 width, f64 height);
 
     void add(const Block& block);
+    void generateGrid();
 
     vector<SearchResultLocation> search(const string& search) const;
 
@@ -34,11 +35,12 @@ public:
     i32 height() const;
     const vector<Block>& blocks() const;
 
-    vector<vector<string>> grid() const;
+    const vector<vector<string>>& grid() const;
     tuple<i32, i32> locateSearchInGrid(const SearchResultLocation& location) const;
 
 private:
     f64 _width;
     f64 _height;
     vector<Block> _blocks;
+    vector<vector<string>> _grid;
 };
