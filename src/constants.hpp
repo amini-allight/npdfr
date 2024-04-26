@@ -30,7 +30,13 @@ static const size_t maxSearchLength = 1024;
 static const u32 blockVerticalSpacer = 1;
 static const u32 blockHorizontalSpacer = 4;
 
+#define STR(x) #x
+#define XSTR(x) STR(x)
+
 static const char* const localExtractorPath = "./tools/extract.py";
 static const char* const localExtractorMarkerPath = "./tools/npdfr-tools-marker";
-static const char* const globalExtractorPath = "/opt/npdfr/tools/extract.py";
-static const char* const globalExtractorMarkerPath = "/opt/npdfr/tools/npdfr-tools-marker";
+static const char* const globalExtractorPath = XSTR(NPDFR_INSTALL_PREFIX)"/share/npdfr/tools/extract.py";
+static const char* const globalExtractorMarkerPath = XSTR(NPDFR_INSTALL_PREFIX)"/share/npdfr/tools/npdfr-tools-marker";
+
+#undef STR
+#undef XSTR

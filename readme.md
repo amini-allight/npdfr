@@ -26,11 +26,22 @@ Make sure the following dependencies are available:
 - `jsoncpp`
 - `ncursesw`
 
-Then run `./setup.sh` in the project root directory.
+Then run the following commands:
+
+```sh
+mkdir -p build
+cd build
+cmake ..
+make -j$(nproc)
+```
 
 ## How to Install
 
-Run `./install.sh` in the project root directory. You must have `sudo` and `rsync` installed and you will be prompted for your password. You can pass an optional argument to install to set the installation prefix, e.g. `./install.sh /usr/local`. If you do not pass this argument it will default to `/usr`.
+After running the build commands, run this command:
+
+```sh
+sudo make install
+```
 
 ## Usage Instructions
 
