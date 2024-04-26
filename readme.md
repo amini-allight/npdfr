@@ -14,6 +14,14 @@ I use a lot of PDFs for running tabletop RPGs and often need to search through t
 
 Really intended for use on Linux only, but should be reasonably easy to adapt to other operating systems.
 
+## Project Status
+
+Complete and ready to use! Please open an issue if you find any problems or it stops working.
+
+## Contributions
+
+Contributions are accepted.
+
 ## How to Build
 
 Make sure the following dependencies are available:
@@ -34,6 +42,12 @@ cd build
 cmake ..
 make -j$(nproc)
 ```
+
+The following CMake flags are available:
+
+| Flag               | Default Value | Use                                                                                  |
+|--------------------|---------------|--------------------------------------------------------------------------------------|
+| `NPDFR_DEPLOYMENT` | On            | When enabled compiles with optimizations, otherwise compiles with debugging symbols. |
 
 ## How to Install
 
