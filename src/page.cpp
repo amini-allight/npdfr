@@ -34,12 +34,7 @@ void Page::add(const Block& block)
 
 void Page::generateGrid()
 {
-    vector<tuple<i32, i32>> offsets(_blocks.size());
-
-    for (size_t i = 0; i < _blocks.size(); i++)
-    {
-        offsets.at(i) = recursiveLocate(_blocks, i);
-    }
+    blockOffsets = locate(_blocks);
 
     i32 width = 0;
     i32 height = 0;
@@ -47,7 +42,7 @@ void Page::generateGrid()
     for (size_t i = 0; i < _blocks.size(); i++)
     {
         const Block& block = _blocks.at(i);
-        const auto [ x, y ] = offsets.at(i);
+        const auto [ x, y ] = blockOffsets.at(i);
 
         width = max(width, x + block.width());
         height = max(height, y + block.height());
@@ -58,7 +53,7 @@ void Page::generateGrid()
     for (size_t i = 0; i < _blocks.size(); i++)
     {
         const Block& block = _blocks.at(i);
-        const auto [ offsetX, offsetY ] = offsets.at(i);
+        const auto [ offsetX, offsetY ] = blockOffsets.at(i);
 
         vector<vector<string>> blockGrid = block.grid();
 
@@ -138,7 +133,7 @@ const vector<vector<string>>& Page::grid() const
 
 tuple<i32, i32> Page::locateSearchInGrid(const SearchResultLocation& location) const
 {
-    auto [ blockX, blockY ] = recursiveLocate(_blocks, location.blockIndex);
+    auto [ blockX, blockY ] = blockOffsets.at(location.blockIndex);
 
     auto [ x, y ] = _blocks.at(location.blockIndex).locateSearchInGrid(location);
 

@@ -43,15 +43,22 @@ int main(int argc, char** argv)
 
     Controller controller;
 
+    cout << "Processing documents..." << endl;
+
     for (int i = 1; i < argc; i++)
     {
         controller.open(argv[i]);
+        cout << i << "/" << (argc - 1) << endl;
     }
+
+    controller.openDisplay();
 
     while (!quit && !controller.shouldQuit())
     {
         controller.run();
     }
+
+    controller.closeDisplay();
 
     return 0;
 }

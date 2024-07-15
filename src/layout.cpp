@@ -67,8 +67,21 @@ bool overlapHorizontalBefore(const Block& block, const Block& candidate)
     }
 }
 
-tuple<i32, i32> recursiveLocate(const vector<Block>& blocks, size_t index)
+static void recursiveLocate(
+    const vector<Block>& blocks,
+    vector<tuple<i32, i32>>& offsets,
+    set<size_t>& traversed,
+    size_t index
+)
 {
+    if (get<0>(offsets.at(index)) >= 0)
+    {
+        return;
+    }
+
+    bool loopDetected = traversed.contains(index);
+    traversed.insert(index);
+
     const Block& block = blocks.at(index);
 
     f64 top = block.top();
@@ -111,17 +124,40 @@ tuple<i32, i32> recursiveLocate(const vector<Block>& blocks, size_t index)
 
     i32 x = 0;
 
-    if (nearestLeft)
+    if (nearestLeft && !loopDetected)
     {
-        x = get<0>(recursiveLocate(blocks, nearestLeftIndex)) + nearestLeft->width() + blockHorizontalSpacer;
+        recursiveLocate(blocks, offsets, traversed, nearestLeftIndex);
+
+        x = get<0>(offsets.at(nearestLeftIndex)) + nearestLeft->width() + blockHorizontalSpacer;
     }
 
     i32 y = 0;
 
-    if (nearestTop)
+    if (nearestTop && !loopDetected)
     {
-        y = get<1>(recursiveLocate(blocks, nearestTopIndex)) + nearestTop->height() + blockVerticalSpacer;
+        recursiveLocate(blocks, offsets, traversed, nearestTopIndex);
+
+        y = get<1>(offsets.at(nearestTopIndex)) + nearestTop->height() + blockVerticalSpacer;
     }
 
-    return { x, y };
+    offsets.at(index) = { x, y };
+}
+
+vector<tuple<i32, i32>> locate(const vector<Block>& blocks)
+{
+    vector<tuple<i32, i32>> offsets(blocks.size(), { -1, -1 });
+
+    if (blocks.empty())
+    {
+        return offsets;
+    }
+
+    for (size_t i = 0; i < blocks.size(); i++)
+    {
+        set<size_t> traversed;
+
+        recursiveLocate(blocks, offsets, traversed, i);
+    }
+
+    return offsets;
 }

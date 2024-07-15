@@ -35,11 +35,16 @@ public:
 
     void open(const string& path);
 
+    void openDisplay();
+    void closeDisplay();
+
     void run();
 
     bool shouldQuit() const;
 
 private:
+    bool displayOpen;
+
     i32 width;
     i32 height;
 

@@ -60,9 +60,9 @@ Document::Document(const string& path)
 
         Page page(pageRoot["width"].asDouble(), pageRoot["height"].asDouble());
 
-        for (int i = 0; i < pageRoot["blocks"].size(); i++)
+        for (int j = 0; j < pageRoot["blocks"].size(); j++)
         {
-            const Json::Value& blockRoot = pageRoot["blocks"][i];
+            const Json::Value& blockRoot = pageRoot["blocks"][j];
 
             Block block(
                 blockRoot["left"].asDouble(),
@@ -75,9 +75,33 @@ Document::Document(const string& path)
             page.add(block);
         }
 
-        page.generateGrid();
-
         _pages.push_back(page);
+    }
+
+    size_t workerCount = thread::hardware_concurrency();
+
+    vector<thread> workers(workerCount);
+
+    size_t chunkSize = max<size_t>(_pages.size() / workerCount, 1);
+
+    for (size_t workerIndex = 0; workerIndex < workerCount; workerIndex++)
+    {
+        workers[workerIndex] = thread([this, workerIndex, workerCount, chunkSize]() -> void {
+            size_t start = workerIndex * chunkSize;
+            size_t end = workerIndex + 1 == workerCount
+                ? _pages.size()
+                : (workerIndex + 1) * chunkSize;
+
+            for (size_t i = start; i < end; i++)
+            {
+                _pages[i].generateGrid();
+            }
+        });
+    }
+
+    for (thread& worker : workers)
+    {
+        worker.join();
     }
 }
 

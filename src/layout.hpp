@@ -21,4 +21,4 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 #include "types.hpp"
 #include "block.hpp"
 
-tuple<i32, i32> recursiveLocate(const vector<Block>& blocks, size_t index);
+vector<tuple<i32, i32>> locate(const vector<Block>& blocks);

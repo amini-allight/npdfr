@@ -42,5 +42,7 @@ private:
     f64 _width;
     f64 _height;
     vector<Block> _blocks;
+    // Stored to help with locating searches
+    vector<tuple<i32, i32>> blockOffsets;
     vector<vector<string>> _grid;
 };

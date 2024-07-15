@@ -25,31 +25,17 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 #include <ncurses.h>
 
 Controller::Controller()
-    : emptyPage(0, 0)
+    : displayOpen(false)
+    , emptyPage(0, 0)
     , quit(false)
     , searchForwards(true)
 {
-    setlocale(LC_ALL, "");
 
-    initscr();
-    noecho();
-    cbreak();
-    start_color();
-    use_default_colors();
-    keypad(stdscr, true);
-    curs_set(0);
-
-    init_pair(1, COLOR_BLUE, -1);
-    init_pair(2, COLOR_RED, -1);
 }
 
 Controller::~Controller()
 {
-    move(0, 0);
-    curs_set(1);
-    keypad(stdscr, false);
-    echo();
-    endwin();
+    closeDisplay();
 }
 
 void Controller::open(const string& path)
@@ -58,6 +44,41 @@ void Controller::open(const string& path)
     views.insert_or_assign(path, DocumentView());
 
     activeDocumentName = path;
+}
+
+void Controller::openDisplay()
+{
+    if (!displayOpen)
+    {
+        setlocale(LC_ALL, "");
+
+        initscr();
+        noecho();
+        cbreak();
+        start_color();
+        use_default_colors();
+        keypad(stdscr, true);
+        curs_set(0);
+
+        init_pair(1, COLOR_BLUE, -1);
+        init_pair(2, COLOR_RED, -1);
+
+        displayOpen = true;
+    }
+}
+
+void Controller::closeDisplay()
+{
+    if (displayOpen)
+    {
+        move(0, 0);
+        curs_set(1);
+        keypad(stdscr, false);
+        echo();
+        endwin();
+
+        displayOpen = false;
+    }
 }
 
 void Controller::run()

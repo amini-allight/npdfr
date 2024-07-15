@@ -35,6 +35,8 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 #include <fstream>
 #include <optional>
 #include <filesystem>
+#include <thread>
+#include <set>
 
 using namespace std;
 
