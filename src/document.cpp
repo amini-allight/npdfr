@@ -22,6 +22,28 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 
 #include <json/json.h>
 
+static vector<Outline> parseOutline(const Json::Value& root)
+{
+    vector<Outline> outlines;
+    outlines.reserve(root.size());
+
+    for (int i = 0; i < root.size(); i++)
+    {
+        const Json::Value& outlineRoot = root[i];
+
+        Outline outline(outlineRoot["title"].asString(), outlineRoot["page"].asInt());
+
+        for (const Outline& subOutline : parseOutline(outlineRoot["outline"]))
+        {
+            outline.add(subOutline);
+        }
+
+        outlines.push_back(outline);
+    }
+
+    return outlines;
+}
+
 Document::Document()
 {
 
@@ -77,6 +99,8 @@ Document::Document(const string& path)
 
         _pages.push_back(page);
     }
+
+    _outline = parseOutline(root["outline"]);
 
     size_t workerCount = thread::hardware_concurrency();
 
@@ -134,4 +158,52 @@ vector<SearchResultLocation> Document::search(const string& search) const
 const vector<Page>& Document::pages() const
 {
     return _pages;
+}
+
+const vector<Outline>& Document::outline() const
+{
+    return _outline;
+}
+
+i32 Document::outlinePageIndexAt(i32 scrollIndex) const
+{
+    i32 y = 0;
+
+    for (const Outline& outline : _outline)
+    {
+        i32 pageIndex = outline.pageIndexAt(scrollIndex, &y);
+
+        if (pageIndex >= 0)
+        {
+            return pageIndex;
+        }
+
+        y++;
+    }
+
+    return -1;
+}
+
+i32 Document::outlineWidth() const
+{
+    i32 width = 0;
+
+    for (const Outline& outline : _outline)
+    {
+        width = max<i32>(width, blockHorizontalSpacer + outline.width());
+    }
+
+    return width;
+}
+
+i32 Document::outlineHeight() const
+{
+    i32 height = 0;
+
+    for (const Outline& outline : _outline)
+    {
+        height += outline.height();
+    }
+
+    return height;
 }

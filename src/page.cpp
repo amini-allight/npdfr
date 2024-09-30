@@ -99,6 +99,39 @@ vector<SearchResultLocation> Page::search(const string& search) const
         results.insert(results.end(), blockResults.begin(), blockResults.end());
     }
 
+    // Account for the possibility of multiple overlapping searches from different blocks
+    for (size_t i = 0; i < results.size();)
+    {
+        const SearchResultLocation& result = results[i];
+
+        bool overlap = false;
+
+        for (size_t j = 0; j < results.size(); j++)
+        {
+            if (i == j)
+            {
+                continue;
+            }
+
+            const SearchResultLocation& other = results[j];
+
+            if (result.overlap(other, search))
+            {
+                overlap = true;
+                break;
+            }
+        }
+
+        if (overlap)
+        {
+            results.erase(results.begin() + i);
+        }
+        else
+        {
+            i++;
+        }
+    }
+
     sort(results.begin(), results.end());
 
     return results;

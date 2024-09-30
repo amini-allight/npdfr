@@ -20,6 +20,7 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 
 #include "types.hpp"
 #include "page.hpp"
+#include "outline.hpp"
 
 class Document
 {
@@ -30,7 +31,13 @@ public:
     vector<SearchResultLocation> search(const string& search) const;
 
     const vector<Page>& pages() const;
+    const vector<Outline>& outline() const;
+
+    i32 outlinePageIndexAt(i32 scrollIndex) const;
+    i32 outlineWidth() const;
+    i32 outlineHeight() const;
 
 private:
     vector<Page> _pages;
+    vector<Outline> _outline;
 };

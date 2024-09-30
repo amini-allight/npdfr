@@ -20,6 +20,8 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 #include "constants.hpp"
 #include "controller.hpp"
 
+// TODO: Switch to libmupdf
+
 static bool quit = false;
 
 static void onInterrupt(int)

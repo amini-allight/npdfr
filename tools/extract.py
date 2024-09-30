@@ -29,8 +29,30 @@ output_path = sys.argv[2]
 document = fitz.open(input_path)
 
 document_root = {
-    "pages": []
+    "pages": [],
+    "outline": []
 }
+
+def parse_outline(node):
+    outlines = []
+
+    while node != None:
+        outline = {
+            "title": node.title,
+            "page": node.page,
+            "outline": []
+        }
+
+        if node.down:
+            outline["outline"] = parse_outline(node.down)
+
+        outlines.append(outline)
+
+        node = node.next
+
+    return outlines
+
+document_root["outline"] = parse_outline(document.outline)
 
 for page in document:
     blocks = page.get_text("blocks")

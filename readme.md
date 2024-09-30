@@ -71,25 +71,27 @@ Otherwise run `./run.sh /path/to/file.pdf` in the project root directory. You ca
 
 The keybindings are mostly the same as the `less` utility.
 
-| Key                           | Action              |
-|-------------------------------|---------------------|
-| g, home                       | Go to first page    |
-| G, end                        | Go to last page     |
-| u, U                          | Go to start of page |
-| d, D                          | Go to end of page   |
-| tab                           | Next document       |
-| shift+tab                     | Previous document   |
-| space, f, F, page down        | Next page           |
-| b, B, page up                 | Previous page       |
-| h, H, left arrow              | Pan left            |
-| e, E, j, J, enter, down arrow | Scroll down         |
-| y, Y, k, K, up arrow          | Scroll up           |
-| l, L, right                   | Pan right           |
-| q, Q                          | Quit                |
-| n                             | Find next           |
-| N                             | Find previous       |
-| /                             | Search forwards     |
-| ?                             | Search backwards    |
+| Key                           | Action                           |
+|-------------------------------|----------------------------------|
+| g, home                       | Go to first page                 |
+| G, end                        | Go to last page                  |
+| u, U                          | Go to start of page              |
+| d, D                          | Go to end of page                |
+| tab                           | Next document                    |
+| shift+tab                     | Previous document                |
+| space, f, F, page down        | Next page                        |
+| b, B, page up                 | Previous page                    |
+| h, H, left arrow              | Pan left                         |
+| e, E, j, J, enter, down arrow | Scroll down                      |
+| y, Y, k, K, up arrow          | Scroll up                        |
+| l, L, right                   | Pan right                        |
+| o, O                          | Toggle outline view              |
+| q, Q                          | Quit                             |
+| n                             | Find next                        |
+| N                             | Find previous                    |
+| /                             | Search forwards                  |
+| ?                             | Search backwards                 |
+| :                             | Go to page number                |
 
 ## Credit & License
 

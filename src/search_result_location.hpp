@@ -39,6 +39,8 @@ struct SearchResultLocation
     bool operator<=(const SearchResultLocation& rhs) const;
     strong_ordering operator<=>(const SearchResultLocation& rhs) const;
 
+    bool overlap(const SearchResultLocation& other, const string& search) const;
+
     string documentName;
     i32 pageIndex;
     i32 blockIndex;

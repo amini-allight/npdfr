@@ -63,12 +63,19 @@ private:
     void updateSize();
     void drawScreen() const;
     void handleInput();
+
+    void drawPage() const;
+    void drawOutline(i32 x, i32* readY, i32* writeY, const vector<Outline>& outline) const;
+    void handlePageInput(int ch);
+    void handleOutlineInput(int ch);
+
     void writeToScreen(i32 y, i32 x, const string& s) const;
 
     void goToStartOfDocument();
     void goToEndOfDocument();
     void goToStartOfPage();
     void goToEndOfPage();
+    void goToPage();
     void nextDocument();
     void previousDocument();
     void pageUp();
@@ -77,16 +84,35 @@ private:
     void scrollDown();
     void panLeft();
     void panRight();
+    void toggleOutlineView();
     void nextSearchResult();
     void previousSearchResult();
     void startForwardSearch();
     void startBackwardSearch();
 
+    void goToStartOfOutline();
+    void goToEndOfOutline();
+    void goToPageOutline();
+    void halfPageUpOutline();
+    void halfPageDownOutline();
+    void pageUpOutline();
+    void pageDownOutline();
+    void scrollUpOutline();
+    void scrollDownOutline();
+    void panLeftOutline();
+    void panRightOutline();
+
     SearchResultLocation seedSearchResult() const;
+    i32 pages() const;
+    i32 maxPageIndex() const;
     i32 maxPan() const;
     i32 maxScroll() const;
     i32 pageWidth() const;
     i32 pageHeight() const;
+    i32 maxPanOutline() const;
+    i32 maxSelectOutline() const;
+    i32 pageWidthOutline() const;
+    i32 pageHeightOutline() const;
     const Page& activePage() const;
     const Document& activeDocument() const;
     DocumentView& activeView();

@@ -30,4 +30,8 @@ struct DocumentView
     i32 panIndex;
     size_t searchResultIndex;
     vector<SearchResultLocation> searchResults;
+    bool viewingOutline;
+    i32 outlineSelectIndex;
+    i32 outlineScrollIndex;
+    i32 outlinePanIndex;
 };

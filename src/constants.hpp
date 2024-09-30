@@ -26,6 +26,7 @@ static const u32 minorVersion = 1;
 static const u32 patchVersion = 1;
 
 static const size_t maxSearchLength = 1024;
+static const size_t maxPageNumberLength = 16;
 
 static const u32 blockVerticalSpacer = 1;
 static const u32 blockHorizontalSpacer = 4;

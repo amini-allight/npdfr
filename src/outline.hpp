@@ -16,17 +16,27 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 */
-#include "document_view.hpp"
+#pragma once
 
-DocumentView::DocumentView()
-    : pageIndex(0)
-    , scrollIndex(0)
-    , panIndex(0)
-    , searchResultIndex(0)
-    , viewingOutline(false)
-    , outlineSelectIndex(0)
-    , outlineScrollIndex(0)
-    , outlinePanIndex(0)
+#include "types.hpp"
+
+class Outline
 {
+public:
+    Outline(const string& title, i32 page);
 
-}
+    void add(const Outline& outline);
+
+    const string& title() const;
+    i32 page() const;
+    const vector<Outline>& outline() const;
+
+    i32 pageIndexAt(i32 scrollIndex, i32* y) const;
+    i32 width() const;
+    i32 height() const;
+
+private:
+    string _title;
+    i32 _page;
+    vector<Outline> _outline;
+};

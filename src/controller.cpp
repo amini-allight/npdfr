@@ -106,6 +106,55 @@ void Controller::drawScreen() const
 {
     erase();
 
+    if (!activeView().viewingOutline)
+    {
+        drawPage();
+    }
+    else
+    {
+        i32 readY = 0;
+        i32 writeY = 0;
+        drawOutline(blockHorizontalSpacer, &readY, &writeY, activeDocument().outline());
+    }
+
+    string prompt;
+
+    prompt = format(
+        "{} ({}/{})",
+        activeDocumentName,
+        activeView().pageIndex + 1,
+        pages()
+    );
+
+    if (!search.empty())
+    {
+        prompt += format(
+            " {} ({}/{})",
+            search,
+            activeView().searchResultIndex + 1,
+            searchResults().size()
+        );
+    }
+
+    writeToScreen(height - 1, 0, prompt.c_str());
+}
+
+void Controller::handleInput()
+{
+    int ch = getch();
+
+    if (!activeView().viewingOutline)
+    {
+        handlePageInput(ch);
+    }
+    else
+    {
+        handleOutlineInput(ch);
+    }
+}
+
+void Controller::drawPage() const
+{
     const Page& page = activePage();
 
     const vector<vector<string>>& grid = page.grid();
@@ -229,38 +278,84 @@ void Controller::drawScreen() const
             }
         }
     }
-
-    string prompt;
-
-    if (search.empty())
-    {
-        prompt = format(
-            "{} ({}/{})",
-            activeDocumentName,
-            activeView().pageIndex + 1,
-            activeDocument().pages().size()
-        );
-    }
-    else
-    {
-        prompt = format(
-            "{} ({}/{}) {} ({}/{})",
-            activeDocumentName,
-            activeView().pageIndex + 1,
-            activeDocument().pages().size(),
-            search,
-            activeView().searchResultIndex + 1,
-            searchResults().size()
-        );
-    }
-
-    writeToScreen(height - 1, 0, prompt.c_str());
 }
 
-void Controller::handleInput()
+void Controller::drawOutline(i32 x, i32* readY, i32* writeY, const vector<Outline>& outline) const
 {
-    int ch = getch();
+    i32 panIndex = activeView().outlinePanIndex;
+    i32 scrollIndex = activeView().outlineScrollIndex;
 
+    for (size_t i = 0; i < outline.size(); i++)
+    {
+        const Outline& item = outline[i];
+
+        bool selected = *readY == activeView().outlineSelectIndex;
+
+        vector<string> parts;
+        parts.reserve(3);
+        vector<i32> highlighted;
+        highlighted.reserve(3);
+
+        parts.push_back(string(x, ' ') + item.title() + " (");
+        highlighted.push_back(selected ? 2 : 0);
+        parts.push_back(to_string(item.page() + 1));
+        highlighted.push_back(1);
+        parts.push_back(")");
+        highlighted.push_back(selected ? 2 : 0);
+
+        if (*readY >= scrollIndex)
+        {
+            i32 readX = 0;
+            i32 writeX = 0;
+
+            for (size_t i = 0; i < parts.size(); i++)
+            {
+                string part = parts[i];
+                i32 highlight = highlighted[i];
+
+                i32 size = charwiseSize(part);
+
+                if (readX + size > panIndex)
+                {
+                    i32 remainingSize = size - max(panIndex - readX, 0);
+                    i32 cutIndex = size - remainingSize;
+
+                    part = charwiseSubstring(part, cutIndex, remainingSize);
+
+                    switch (highlight)
+                    {
+                    case 0 :
+                        writeToScreen(*writeY, writeX, part.c_str());
+                        break;
+                    case 1 :
+                        attron(COLOR_PAIR(1));
+                        writeToScreen(*writeY, writeX, part.c_str());
+                        attroff(COLOR_PAIR(1));
+                        break;
+                    case 2 :
+                        attron(COLOR_PAIR(2));
+                        writeToScreen(*writeY, writeX, part.c_str());
+                        attroff(COLOR_PAIR(2));
+                        break;
+                    }
+
+                    writeX += remainingSize;
+                }
+
+                readX += size;
+            }
+
+            (*writeY)++;
+        }
+
+        (*readY)++;
+
+        drawOutline(x + blockHorizontalSpacer, readY, writeY, item.outline());
+    }
+}
+
+void Controller::handlePageInput(int ch)
+{
     switch (ch)
     {
     // g, home
@@ -310,14 +405,18 @@ void Controller::handleInput()
     case 260 :
         panLeft();
         break;
-    // e, E, j, J, enter, down
+    // e, E, j, J, down, enter
     case 'e' :
     case 'E' :
     case 'j' :
     case 'J' :
-    case 10 :
     case 258 :
+    case 10 :
         scrollDown();
+        break;
+    case 'o' :
+    case 'O' :
+        toggleOutlineView();
         break;
     // y, Y, k, K, up
     case 'y' :
@@ -354,6 +453,99 @@ void Controller::handleInput()
     case '?' :
         startBackwardSearch();
         break;
+    // :
+    case ':' :
+        goToPage();
+        break;
+    }
+}
+
+void Controller::handleOutlineInput(int ch)
+{
+    switch (ch)
+    {
+    // g, home
+    case 'g' :
+    case 262 :
+        goToStartOfOutline();
+        break;
+    // G, end
+    case 'G' :
+    case 360 :
+        goToEndOfOutline();
+        break;
+    // u, U
+    case 'u' :
+    case 'U' :
+        halfPageUpOutline();
+        break;
+    // d, D
+    case 'd' :
+    case 'D' :
+        halfPageDownOutline();
+        break;
+    // tab
+    case 9 :
+        nextDocument();
+        break;
+    // shift+tab
+    case 353 :
+        previousDocument();
+        break;
+    // b, B, page-up
+    case 'b' :
+    case 'B' :
+    case 339 :
+        pageUpOutline();
+        break;
+    // space, f, F, page-down
+    case ' ' :
+    case 'f' :
+    case 'F' :
+    case 338 :
+        pageDownOutline();
+        break;
+    // h, H, left
+    case 'h' :
+    case 'H' :
+    case 260 :
+        panLeftOutline();
+        break;
+    // e, E, j, J, down
+    case 'e' :
+    case 'E' :
+    case 'j' :
+    case 'J' :
+    case 258 :
+        scrollDownOutline();
+        break;
+    // enter
+    case 10 :
+        goToPageOutline();
+        break;
+    case 'o' :
+    case 'O' :
+        toggleOutlineView();
+        break;
+    // y, Y, k, K, up
+    case 'y' :
+    case 'Y' :
+    case 'k' :
+    case 'K' :
+    case 259 :
+        scrollUpOutline();
+        break;
+    // l, L, right
+    case 'l' :
+    case 'L' :
+    case 261 :
+        panRightOutline();
+        break;
+    // q, Q
+    case 'q' :
+    case 'Q' :
+        quit = true;
+        break;
     }
 }
 
@@ -377,7 +569,7 @@ void Controller::goToStartOfDocument()
 void Controller::goToEndOfDocument()
 {
     i32 previousPageIndex = activeView().pageIndex;
-    activeView().pageIndex = max<i32>(activeDocument().pages().size() - 1, 0);
+    activeView().pageIndex = maxPageIndex();
     activeView().scrollIndex = maxScroll();
 
     if (activeView().pageIndex != previousPageIndex)
@@ -394,6 +586,38 @@ void Controller::goToStartOfPage()
 void Controller::goToEndOfPage()
 {
     activeView().scrollIndex = maxScroll();
+}
+
+void Controller::goToPage()
+{
+    string buffer(maxPageNumberLength, '\0');
+
+    move(height - 1, 0);
+    clrtoeol();
+    writeToScreen(height - 1, 0, ":");
+    echo();
+    mvgetnstr(height - 1, 1, buffer.data(), maxPageNumberLength);
+    noecho();
+
+    i32 pageIndex;
+
+    try
+    {
+        pageIndex = stoi(buffer) - 1;
+    }
+    catch (const exception& e)
+    {
+        return;
+    }
+
+    i32 previousPageIndex = activeView().pageIndex;
+    activeView().pageIndex = clamp<i32>(pageIndex, 0, maxPageIndex());
+    activeView().scrollIndex = 0;
+
+    if (activeView().pageIndex != previousPageIndex)
+    {
+        activeView().panIndex = 0;
+    }
 }
 
 void Controller::nextDocument()
@@ -444,7 +668,7 @@ void Controller::previousDocument()
 void Controller::pageUp()
 {
     i32 previousPageIndex = activeView().pageIndex;
-    activeView().pageIndex = clamp<i32>(activeView().pageIndex - 1, 0, activeDocument().pages().size() - 1);
+    activeView().pageIndex = clamp<i32>(activeView().pageIndex - 1, 0, maxPageIndex());
 
     if (activeView().pageIndex != previousPageIndex)
     {
@@ -456,7 +680,7 @@ void Controller::pageUp()
 void Controller::pageDown()
 {
     i32 previousPageIndex = activeView().pageIndex;
-    activeView().pageIndex = clamp<i32>(activeView().pageIndex + 1, 0, activeDocument().pages().size() - 1);
+    activeView().pageIndex = clamp<i32>(activeView().pageIndex + 1, 0, maxPageIndex());
 
     if (activeView().pageIndex != previousPageIndex)
     {
@@ -485,8 +709,18 @@ void Controller::panRight()
     activeView().panIndex = clamp(activeView().panIndex + 1, 0, maxPan());
 }
 
+void Controller::toggleOutlineView()
+{
+    activeView().viewingOutline = !activeView().viewingOutline;
+}
+
 void Controller::nextSearchResult()
 {
+    if (activeView().searchResults.empty())
+    {
+        return;
+    }
+
     if (activeView().searchResultIndex + 1 == activeView().searchResults.size())
     {
         activeView().searchResultIndex = 0;
@@ -511,6 +745,11 @@ void Controller::nextSearchResult()
 
 void Controller::previousSearchResult()
 {
+    if (activeView().searchResults.empty())
+    {
+        return;
+    }
+
     if (activeView().searchResultIndex == 0)
     {
         activeView().searchResultIndex = activeView().searchResults.size() - 1;
@@ -605,9 +844,85 @@ void Controller::startBackwardSearch()
     }
 }
 
+void Controller::goToStartOfOutline()
+{
+    activeView().outlineSelectIndex = 0;
+}
+
+void Controller::goToEndOfOutline()
+{
+    activeView().outlineSelectIndex = maxSelectOutline();
+}
+
+void Controller::goToPageOutline()
+{
+    DocumentView& view = activeView();
+
+    view.viewingOutline = false;
+    view.pageIndex = clamp<i32>(activeDocument().outlinePageIndexAt(activeView().outlineSelectIndex), 0, maxPageIndex());
+    view.scrollIndex = 0;
+    view.panIndex = 0;
+}
+
+void Controller::halfPageUpOutline()
+{
+    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex - pageHeightOutline() / 2, 0, maxSelectOutline());
+    activeView().outlineScrollIndex = min(activeView().outlineSelectIndex, activeView().outlineScrollIndex);
+}
+
+void Controller::halfPageDownOutline()
+{
+    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex + pageHeightOutline() / 2, 0, maxSelectOutline());
+    activeView().outlineScrollIndex = max(activeView().outlineSelectIndex - (height - 2), activeView().outlineScrollIndex);
+}
+
+void Controller::pageUpOutline()
+{
+    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex - pageHeightOutline(), 0, maxSelectOutline());
+    activeView().outlineScrollIndex = min(activeView().outlineSelectIndex, activeView().outlineScrollIndex);
+}
+
+void Controller::pageDownOutline()
+{
+    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex + pageHeightOutline(), 0, maxSelectOutline());
+    activeView().outlineScrollIndex = max(activeView().outlineSelectIndex - (height - 2), activeView().outlineScrollIndex);
+}
+
+void Controller::scrollUpOutline()
+{
+    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex - 1, 0, maxSelectOutline());
+    activeView().outlineScrollIndex = min(activeView().outlineSelectIndex, activeView().outlineScrollIndex);
+}
+
+void Controller::scrollDownOutline()
+{
+    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex + 1, 0, maxSelectOutline());
+    activeView().outlineScrollIndex = max(activeView().outlineSelectIndex - (height - 2), activeView().outlineScrollIndex);
+}
+
+void Controller::panLeftOutline()
+{
+    activeView().outlinePanIndex = clamp(activeView().outlinePanIndex - 1, 0, maxPanOutline());
+}
+
+void Controller::panRightOutline()
+{
+    activeView().outlinePanIndex = clamp(activeView().outlinePanIndex + 1, 0, maxPanOutline());
+}
+
 SearchResultLocation Controller::seedSearchResult() const
 {
     return SearchResultLocation(activeDocumentName, activeView().pageIndex);
+}
+
+i32 Controller::pages() const
+{
+    return activeDocument().pages().size();
+}
+
+i32 Controller::maxPageIndex() const
+{
+    return max(0, pages() - 1);
 }
 
 i32 Controller::maxPan() const
@@ -617,7 +932,7 @@ i32 Controller::maxPan() const
 
 i32 Controller::maxScroll() const
 {
-    return max(pageHeight() - height, 0);
+    return max(pageHeight() - (height - 1), 0);
 }
 
 i32 Controller::pageWidth() const
@@ -630,9 +945,29 @@ i32 Controller::pageHeight() const
     return activePage().height();
 }
 
+i32 Controller::maxPanOutline() const
+{
+    return max(pageWidthOutline() - width, 0);
+}
+
+i32 Controller::maxSelectOutline() const
+{
+    return max(pageHeightOutline() - 1, 0);
+}
+
+i32 Controller::pageWidthOutline() const
+{
+    return activeDocument().outlineWidth();
+}
+
+i32 Controller::pageHeightOutline() const
+{
+    return activeDocument().outlineHeight();
+}
+
 const Page& Controller::activePage() const
 {
-    return activeView().pageIndex < activeDocument().pages().size()
+    return activeView().pageIndex < pages()
         ? activeDocument().pages().at(activeView().pageIndex)
         : emptyPage;
 }

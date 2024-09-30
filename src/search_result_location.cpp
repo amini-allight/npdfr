@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 */
 #include "search_result_location.hpp"
+#include "charwise.hpp"
 
 SearchResultLocation::SearchResultLocation(
     const string& documentName,
@@ -127,4 +128,9 @@ strong_ordering SearchResultLocation::operator<=>(const SearchResultLocation& rh
     {
         return strong_ordering::greater;
     }
+}
+
+bool SearchResultLocation::overlap(const SearchResultLocation& other, const string& search) const
+{
+    return y == other.y && abs(other.x - x) < charwiseSize(search);
 }
