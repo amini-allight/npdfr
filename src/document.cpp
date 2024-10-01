@@ -112,9 +112,15 @@ Document::Document(const string& path)
     {
         workers[workerIndex] = thread([this, workerIndex, workerCount, chunkSize]() -> void {
             size_t start = workerIndex * chunkSize;
+
+            if (start >= _pages.size())
+            {
+                return;
+            }
+
             size_t end = workerIndex + 1 == workerCount
                 ? _pages.size()
-                : (workerIndex + 1) * chunkSize;
+                : min((workerIndex + 1) * chunkSize, _pages.size());
 
             for (size_t i = start; i < end; i++)
             {
