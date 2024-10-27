@@ -31,7 +31,7 @@ public:
     i32 page() const;
     const vector<Outline>& outline() const;
 
-    i32 pageIndexAt(i32 scrollIndex, i32* y) const;
+    i32 pageIndexAt(i32 selectIndex, i32* y) const;
     i32 width() const;
     i32 height() const;
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Copyright 2024 Amini Allight
 # 
 # This file is part of npdfr.

@@ -48,23 +48,23 @@ const vector<Outline>& Outline::outline() const
     return _outline;
 }
 
-i32 Outline::pageIndexAt(i32 scrollIndex, i32* y) const
+i32 Outline::pageIndexAt(i32 selectIndex, i32* y) const
 {
-    if (scrollIndex == *y)
+    if (selectIndex == *y)
     {
         return _page;
     }
 
+    (*y)++;
+
     for (const Outline& outline : _outline)
     {
-        i32 pageIndex = outline.pageIndexAt(scrollIndex, y);
+        i32 pageIndex = outline.pageIndexAt(selectIndex, y);
 
         if (pageIndex >= 0)
         {
             return pageIndex;
         }
-
-        (*y)++;
     }
 
     return -1;

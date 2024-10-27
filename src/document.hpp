@@ -33,7 +33,7 @@ public:
     const vector<Page>& pages() const;
     const vector<Outline>& outline() const;
 
-    i32 outlinePageIndexAt(i32 scrollIndex) const;
+    i32 outlinePageIndexAt(i32 selectIndex) const;
     i32 outlineWidth() const;
     i32 outlineHeight() const;
 

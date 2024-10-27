@@ -847,11 +847,13 @@ void Controller::startBackwardSearch()
 void Controller::goToStartOfOutline()
 {
     activeView().outlineSelectIndex = 0;
+    activeView().outlineScrollIndex = 0;
 }
 
 void Controller::goToEndOfOutline()
 {
     activeView().outlineSelectIndex = maxSelectOutline();
+    activeView().outlineScrollIndex = max(activeView().outlineSelectIndex - (height - 2), activeView().outlineScrollIndex);
 }
 
 void Controller::goToPageOutline()
@@ -866,25 +868,25 @@ void Controller::goToPageOutline()
 
 void Controller::halfPageUpOutline()
 {
-    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex - pageHeightOutline() / 2, 0, maxSelectOutline());
+    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex - height / 2, 0, maxSelectOutline());
     activeView().outlineScrollIndex = min(activeView().outlineSelectIndex, activeView().outlineScrollIndex);
 }
 
 void Controller::halfPageDownOutline()
 {
-    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex + pageHeightOutline() / 2, 0, maxSelectOutline());
+    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex + height / 2, 0, maxSelectOutline());
     activeView().outlineScrollIndex = max(activeView().outlineSelectIndex - (height - 2), activeView().outlineScrollIndex);
 }
 
 void Controller::pageUpOutline()
 {
-    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex - pageHeightOutline(), 0, maxSelectOutline());
+    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex - height, 0, maxSelectOutline());
     activeView().outlineScrollIndex = min(activeView().outlineSelectIndex, activeView().outlineScrollIndex);
 }
 
 void Controller::pageDownOutline()
 {
-    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex + pageHeightOutline(), 0, maxSelectOutline());
+    activeView().outlineSelectIndex = clamp(activeView().outlineSelectIndex + height, 0, maxSelectOutline());
     activeView().outlineScrollIndex = max(activeView().outlineSelectIndex - (height - 2), activeView().outlineScrollIndex);
 }
 
