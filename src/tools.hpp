@@ -39,9 +39,14 @@ string randomTemporaryPath()
     return format("/tmp/{}", s);
 }
 
-string getFile(const string& path)
+optional<string> getFile(const string& path)
 {
     ifstream file(path);
+
+    if (!file.good())
+    {
+        return {};
+    }
 
     return string(istreambuf_iterator<char>(file), istreambuf_iterator<char>());
 }

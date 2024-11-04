@@ -70,11 +70,16 @@ Document::Document(const string& path)
 
     system(format("python \"{}\" \"{}\" \"{}\"", extractorPath, path, tmpPath).c_str());
 
-    string serial = getFile(tmpPath);
+    optional<string> serial = getFile(tmpPath);
+
+    if (!serial)
+    {
+        throw runtime_error("Could not open extracted file data, extraction failed.");
+    }
 
     Json::Value root;
     Json::Reader reader;
-    reader.parse(serial, root);
+    reader.parse(*serial, root);
 
     for (int i = 0; i < root["pages"].size(); i++)
     {

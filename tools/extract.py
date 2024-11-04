@@ -38,18 +38,21 @@ def parse_outline(node):
     outlines = []
 
     while node != None:
-        outline = {
-            "title": node.title,
-            "page": node.page,
-            "outline": []
-        }
+        # Guard against invalid nodes in some PDFs (possibly a PyMuPDF bug?)
+        try:
+            outline = {
+                "title": node.title,
+                "page": node.page,
+                "outline": []
+            }
 
-        if node.down:
             outline["outline"] = parse_outline(node.down)
 
-        outlines.append(outline)
+            outlines.append(outline)
 
-        node = node.next
+            node = node.next
+        except:
+            break
 
     return outlines
 
