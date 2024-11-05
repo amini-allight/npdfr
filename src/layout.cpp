@@ -74,12 +74,11 @@ static void recursiveLocate(
     size_t index
 )
 {
-    if (get<0>(offsets.at(index)) >= 0)
+    if (get<0>(offsets.at(index)) >= 0 || traversed.contains(index))
     {
         return;
     }
 
-    bool loopDetected = traversed.contains(index);
     traversed.insert(index);
 
     const Block& block = blocks.at(index);
@@ -87,10 +86,8 @@ static void recursiveLocate(
     f64 top = block.top();
     f64 left = block.left();
 
-    size_t nearestTopIndex = 0;
-    optional<Block> nearestTop;
-    size_t nearestLeftIndex = 0;
-    optional<Block> nearestLeft;
+    i32 x = 0;
+    i32 y = 0;
 
     for (size_t i = 0; i < blocks.size(); i++)
     {
@@ -102,42 +99,24 @@ static void recursiveLocate(
         const Block& candidate = blocks.at(i);
 
         if (
-            verticalAlignment(block, candidate) &&
-            (candidate.bottom() <= top || overlapVerticalBefore(block, candidate)) &&
-            (!nearestTop || candidate.bottom() > nearestTop->bottom())
+            horizontalAlignment(block, candidate) &&
+            (candidate.right() <= left || overlapHorizontalBefore(block, candidate))
         )
         {
-            nearestTopIndex = i;
-            nearestTop = candidate;
+            recursiveLocate(blocks, offsets, traversed, i);
+
+            x = max(x, get<0>(offsets.at(i)) + candidate.width() + blockHorizontalSpacer);
         }
 
         if (
-            horizontalAlignment(block, candidate) &&
-            (candidate.right() <= left || overlapHorizontalBefore(block, candidate)) &&
-            (!nearestLeft || candidate.right() > nearestLeft->right())
+            verticalAlignment(block, candidate) &&
+            (candidate.bottom() <= top || overlapVerticalBefore(block, candidate))
         )
         {
-            nearestLeftIndex = i;
-            nearestLeft = candidate;
+            recursiveLocate(blocks, offsets, traversed, i);
+
+            y = max(y, get<1>(offsets.at(i)) + candidate.height() + blockVerticalSpacer);
         }
-    }
-
-    i32 x = 0;
-
-    if (nearestLeft && !loopDetected)
-    {
-        recursiveLocate(blocks, offsets, traversed, nearestLeftIndex);
-
-        x = get<0>(offsets.at(nearestLeftIndex)) + nearestLeft->width() + blockHorizontalSpacer;
-    }
-
-    i32 y = 0;
-
-    if (nearestTop && !loopDetected)
-    {
-        recursiveLocate(blocks, offsets, traversed, nearestTopIndex);
-
-        y = get<1>(offsets.at(nearestTopIndex)) + nearestTop->height() + blockVerticalSpacer;
     }
 
     offsets.at(index) = { x, y };
