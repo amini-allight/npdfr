@@ -152,8 +152,6 @@ Document loadPDF(const filesystem::path& path)
                     extractBlockText(fzBlock)
                 );
 
-                cout << extractBlockText(fzBlock) << endl;
-
                 page.add(block);
             }
 
