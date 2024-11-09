@@ -17,96 +17,25 @@ You should have received a copy of the GNU General Public License
 along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 */
 #include "document.hpp"
-#include "tools.hpp"
 #include "constants.hpp"
-
-#include <json/json.h>
-
-static vector<Outline> parseOutline(const Json::Value& root)
-{
-    vector<Outline> outlines;
-    outlines.reserve(root.size());
-
-    for (int i = 0; i < root.size(); i++)
-    {
-        const Json::Value& outlineRoot = root[i];
-
-        Outline outline(outlineRoot["title"].asString(), outlineRoot["page"].asInt());
-
-        for (const Outline& subOutline : parseOutline(outlineRoot["outline"]))
-        {
-            outline.add(subOutline);
-        }
-
-        outlines.push_back(outline);
-    }
-
-    return outlines;
-}
 
 Document::Document()
 {
 
 }
 
-Document::Document(const string& path)
+void Document::add(const Page& page)
 {
-    string extractorPath;
+    _pages.push_back(page);
+}
 
-    if (filesystem::exists(localExtractorMarkerPath))
-    {
-        extractorPath = localExtractorPath;
-    }
-    else if (filesystem::exists(globalExtractorMarkerPath))
-    {
-        extractorPath = globalExtractorPath;
-    }
-    else
-    {
-        throw runtime_error("Could not find extraction tool, npdfr is not correctly installed.");
-    }
+void Document::setOutline(const vector<Outline>& outline)
+{
+    _outline = outline;
+}
 
-    string tmpPath = randomTemporaryPath() + ".json";
-
-    system(format("python \"{}\" \"{}\" \"{}\"", extractorPath, path, tmpPath).c_str());
-
-    optional<string> serial = getFile(tmpPath);
-
-    if (!serial)
-    {
-        throw runtime_error("Could not open extracted file data, extraction failed.");
-    }
-
-    Json::Value root;
-    Json::Reader reader;
-    reader.parse(*serial, root);
-
-    for (int i = 0; i < root["pages"].size(); i++)
-    {
-        const Json::Value& pageRoot = root["pages"][i];
-
-        Page page(pageRoot["width"].asDouble(), pageRoot["height"].asDouble());
-
-        for (int j = 0; j < pageRoot["blocks"].size(); j++)
-        {
-            const Json::Value& blockRoot = pageRoot["blocks"][j];
-
-            Block block(
-                blockRoot["left"].asDouble(),
-                blockRoot["right"].asDouble(),
-                blockRoot["top"].asDouble(),
-                blockRoot["bottom"].asDouble(),
-                blockRoot["text"].asString()
-            );
-
-            page.add(block);
-        }
-
-        _pages.push_back(page);
-    }
-
-    _outline = parseOutline(root["outline"]);
-
+void Document::generateGrid()
+{
     size_t workerCount = thread::hardware_concurrency();
 
     vector<thread> workers(workerCount);

@@ -33,7 +33,7 @@ public:
     Controller& operator=(const Controller& rhs) = delete;
     Controller& operator=(Controller&& rhs) = delete;
 
-    void open(const string& path);
+    void open(const filesystem::path& path);
 
     void openDisplay();
     void closeDisplay();

@@ -16,31 +16,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 */
-#pragma once
+#include "loader.hpp"
+#include "constants.hpp"
+#include "pdf_loader.hpp"
 
-#include "types.hpp"
-#include "page.hpp"
-#include "outline.hpp"
-
-class Document
+Document loadDocument(const filesystem::path& path)
 {
-public:
-    Document();
+    Document document;
 
-    void add(const Page& page);
-    void setOutline(const vector<Outline>& outline);
-    void generateGrid();
+    if (path.extension() == pdfExtension)
+    {
+        document = loadPDF(path);
+    }
+    else
+    {
+        throw runtime_error("Unknown file extension '" + path.extension().string() + "'.");
+    }
 
-    vector<SearchResultLocation> search(const string& search) const;
+    document.generateGrid();
 
-    const vector<Page>& pages() const;
-    const vector<Outline>& outline() const;
-
-    i32 outlinePageIndexAt(i32 selectIndex) const;
-    i32 outlineWidth() const;
-    i32 outlineHeight() const;
-
-private:
-    vector<Page> _pages;
-    vector<Outline> _outline;
-};
+    return document;
+}

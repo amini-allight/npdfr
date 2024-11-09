@@ -26,12 +26,9 @@ Contributions are accepted.
 
 Make sure the following dependencies are available:
 
-- `python` 3.8+
-- `pip`
-- `virtualenv`
 - `cmake`
+- `libmupdf`
 - `make`
-- `jsoncpp`
 - `ncursesw`
 
 Then run the following commands:

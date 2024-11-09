@@ -19,6 +19,7 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 #include "controller.hpp"
 #include "constants.hpp"
 #include "charwise.hpp"
+#include "loader.hpp"
 
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -38,9 +39,9 @@ Controller::~Controller()
     closeDisplay();
 }
 
-void Controller::open(const string& path)
+void Controller::open(const filesystem::path& path)
 {
-    documents.insert_or_assign(path, Document(path));
+    documents.insert_or_assign(path, loadDocument(path));
     views.insert_or_assign(path, DocumentView());
 
     activeDocumentName = path;

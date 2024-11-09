@@ -20,24 +20,15 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 
 #include "types.hpp"
 
-static const char* const programName = "npdfr";
-static const u32 majorVersion = 0;
-static const u32 minorVersion = 2;
-static const u32 patchVersion = 2;
+static constexpr const char* programName = "npdfr";
+static constexpr u32 majorVersion = 0;
+static constexpr u32 minorVersion = 2;
+static constexpr u32 patchVersion = 2;
 
-static const size_t maxSearchLength = 1024;
-static const size_t maxPageNumberLength = 16;
+static constexpr size_t maxSearchLength = 1024;
+static constexpr size_t maxPageNumberLength = 16;
 
-static const i32 blockVerticalSpacer = 1;
-static const i32 blockHorizontalSpacer = 4;
+static constexpr i32 blockVerticalSpacer = 1;
+static constexpr i32 blockHorizontalSpacer = 4;
 
-#define STR(x) #x
-#define XSTR(x) STR(x)
-
-static const char* const localExtractorPath = "./tools/extract.py";
-static const char* const localExtractorMarkerPath = "./tools/npdfr-tools-marker";
-static const char* const globalExtractorPath = XSTR(NPDFR_INSTALL_PREFIX)"/share/npdfr/tools/extract.py";
-static const char* const globalExtractorMarkerPath = XSTR(NPDFR_INSTALL_PREFIX)"/share/npdfr/tools/npdfr-tools-marker";
-
-#undef STR
-#undef XSTR
+static constexpr string pdfExtension = ".pdf";

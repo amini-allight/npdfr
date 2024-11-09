@@ -18,29 +18,6 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 */
 #pragma once
 
-#include "types.hpp"
-#include "page.hpp"
-#include "outline.hpp"
+#include "document.hpp"
 
-class Document
-{
-public:
-    Document();
-
-    void add(const Page& page);
-    void setOutline(const vector<Outline>& outline);
-    void generateGrid();
-
-    vector<SearchResultLocation> search(const string& search) const;
-
-    const vector<Page>& pages() const;
-    const vector<Outline>& outline() const;
-
-    i32 outlinePageIndexAt(i32 selectIndex) const;
-    i32 outlineWidth() const;
-    i32 outlineHeight() const;
-
-private:
-    vector<Page> _pages;
-    vector<Outline> _outline;
-};
+Document loadPDF(const filesystem::path& path);
