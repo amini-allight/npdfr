@@ -796,11 +796,13 @@ void Controller::startForwardSearch()
             searchResult.documentName = name;
         }
 
+        view.searchResultIndex = 0;
+
         for (size_t i = 0; i < view.searchResults.size(); i++)
         {
             const SearchResultLocation& searchResult = view.searchResults.at(i);
 
-            if (searchResult.pageIndex == view.pageIndex)
+            if (searchResult.pageIndex >= view.pageIndex)
             {
                 view.searchResultIndex = i;
                 break;
@@ -832,7 +834,9 @@ void Controller::startBackwardSearch()
             searchResult.documentName = name;
         }
 
-        for (size_t i = 0; i < view.searchResults.size(); i++)
+        view.searchResultIndex = view.searchResults.size() - 1;
+
+        for (size_t i = view.searchResults.size() - 1; i < view.searchResults.size(); i--)
         {
             const SearchResultLocation& searchResult = view.searchResults.at(i);
 
