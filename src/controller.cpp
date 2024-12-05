@@ -27,7 +27,6 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 
 Controller::Controller()
     : displayOpen(false)
-    , emptyPage(0, 0)
     , quit(false)
     , searchForwards(true)
 {

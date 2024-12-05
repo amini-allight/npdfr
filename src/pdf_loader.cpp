@@ -129,9 +129,9 @@ Document loadPDF(const filesystem::path& path)
     {
         fz_page* fzPage = fz_load_page(ctx, fzDocument, i);
 
-        fz_rect bounds = fz_bound_page(ctx, fzPage);
+        Page page;
 
-        Page page(bounds.x1 - bounds.x0, bounds.y1 - bounds.y0);
+        fz_rect pageBounds = fz_bound_page(ctx, fzPage);
 
         fz_stext_options options{};
         options.scale = 1;
@@ -140,9 +140,17 @@ Document loadPDF(const filesystem::path& path)
 
         const fz_stext_block* fzBlock = fzStextPage->first_block;
 
+        float lowestX = numeric_limits<float>::max();
+        float lowestY = numeric_limits<float>::max();
+
         while (fzBlock)
         {
-            if (fzBlock->type == FZ_STEXT_BLOCK_TEXT)
+            if (fzBlock->type == FZ_STEXT_BLOCK_TEXT && !(
+                fzBlock->bbox.x0 > pageBounds.x1 ||
+                fzBlock->bbox.x1 < pageBounds.x0 ||
+                fzBlock->bbox.y0 > pageBounds.y1 ||
+                fzBlock->bbox.y1 < pageBounds.y0
+            ))
             {
                 Block block(
                     fzBlock->bbox.x0,
@@ -153,10 +161,15 @@ Document loadPDF(const filesystem::path& path)
                 );
 
                 page.add(block);
+
+                lowestX = min(lowestX, fzBlock->bbox.x0);
+                lowestY = min(lowestY, fzBlock->bbox.y0);
             }
 
             fzBlock = fzBlock->next;
         }
+
+        page.adjustBlockOffset(lowestX, lowestY);
 
         fz_drop_stext_page(ctx, fzStextPage);
 

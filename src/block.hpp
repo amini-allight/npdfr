@@ -26,6 +26,8 @@ class Block
 public:
     Block(f64 left, f64 right, f64 top, f64 bottom, const string& text);
 
+    void adjustBlockOffset(float x, float y);
+
     vector<SearchResultLocation> search(const string& search) const;
 
     i32 width() const;

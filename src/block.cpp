@@ -30,6 +30,14 @@ Block::Block(f64 left, f64 right, f64 top, f64 bottom, const string& text)
 
 }
 
+void Block::adjustBlockOffset(float x, float y)
+{
+    _left -= x;
+    _right -= x;
+    _top -= y;
+    _bottom -= y;
+}
+
 vector<SearchResultLocation> Block::search(const string& search) const
 {
     vector<SearchResultLocation> results;

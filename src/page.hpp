@@ -24,9 +24,10 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 class Page
 {
 public:
-    Page(f64 width, f64 height);
+    Page();
 
     void add(const Block& block);
+    void adjustBlockOffset(float x, float y);
     void generateGrid();
 
     vector<SearchResultLocation> search(const string& search) const;
@@ -39,8 +40,6 @@ public:
     tuple<i32, i32> locateSearchInGrid(const SearchResultLocation& location) const;
 
 private:
-    f64 _width;
-    f64 _height;
     vector<Block> _blocks;
     // Stored to help with locating searches
     vector<tuple<i32, i32>> blockOffsets;

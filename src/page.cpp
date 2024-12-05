@@ -20,9 +20,7 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 #include "layout.hpp"
 #include "whitespace.hpp"
 
-Page::Page(f64 width, f64 height)
-    : _width(width)
-    , _height(height)
+Page::Page()
 {
 
 }
@@ -30,6 +28,14 @@ Page::Page(f64 width, f64 height)
 void Page::add(const Block& block)
 {
     _blocks.push_back(block);
+}
+
+void Page::adjustBlockOffset(float x, float y)
+{
+    for (Block& block : _blocks)
+    {
+        block.adjustBlockOffset(x, y);
+    }
 }
 
 void Page::generateGrid()
