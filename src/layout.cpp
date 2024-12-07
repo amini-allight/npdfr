@@ -67,6 +67,29 @@ bool overlapHorizontalBefore(const Block& block, const Block& candidate)
     }
 }
 
+static bool gridOverlap(
+    i32 aX, i32 aY, i32 aWidth, i32 aHeight,
+    i32 bX, i32 bY, i32 bWidth, i32 bHeight
+)
+{
+    i32 aLeft = aX;
+    i32 aRight = aX + aWidth;
+    i32 aTop = aY;
+    i32 aBottom = aY + aHeight;
+
+    i32 bLeft = bX;
+    i32 bRight = bX + bWidth;
+    i32 bTop = bY;
+    i32 bBottom = bY + bHeight;
+
+    return !(
+        aLeft > bRight ||
+        bLeft > aRight ||
+        aTop > bBottom ||
+        bTop > aBottom
+    );
+}
+
 static void recursiveLocate(
     const vector<Block>& blocks,
     vector<tuple<i32, i32>>& offsets,
@@ -118,6 +141,46 @@ static void recursiveLocate(
             y = max(y, get<1>(offsets.at(i)) + candidate.height() + blockVerticalSpacer);
         }
     }
+
+    bool found;
+    bool pushLeft = true;
+
+    do
+    {
+        found = false;
+
+        for (size_t i = 0; i < blocks.size(); i++)
+        {
+            const auto [ otherX, otherY ] = offsets[i];
+            i32 otherWidth = blocks[i].width();
+            i32 otherHeight = blocks[i].height();
+
+            if (otherX < 0 || otherY < 0)
+            {
+                continue;
+            }
+
+            if (gridOverlap(
+                x, y, block.width(), block.height(),
+                otherX, otherY, otherWidth, otherHeight
+            ))
+            {
+                found = true;
+
+                if (pushLeft)
+                {
+                    x = otherX + otherWidth + blockHorizontalSpacer;
+                }
+                else
+                {
+                    y = otherY + otherHeight + blockVerticalSpacer;
+                }
+
+                pushLeft = !pushLeft;
+                break;
+            }
+        }
+    } while (found);
 
     offsets.at(index) = { x, y };
 }

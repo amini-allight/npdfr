@@ -23,7 +23,7 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 static constexpr const char* programName = "npdfr";
 static constexpr u32 majorVersion = 0;
 static constexpr u32 minorVersion = 3;
-static constexpr u32 patchVersion = 1;
+static constexpr u32 patchVersion = 2;
 
 static constexpr size_t maxSearchLength = 1024;
 static constexpr size_t maxPageNumberLength = 16;
