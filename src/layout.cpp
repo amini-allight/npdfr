@@ -143,7 +143,7 @@ static void recursiveLocate(
     }
 
     bool found;
-    bool pushLeft = true;
+    bool pushRight = true;
 
     do
     {
@@ -167,7 +167,7 @@ static void recursiveLocate(
             {
                 found = true;
 
-                if (pushLeft)
+                if (pushRight)
                 {
                     x = otherX + otherWidth + blockHorizontalSpacer;
                 }
@@ -176,7 +176,7 @@ static void recursiveLocate(
                     y = otherY + otherHeight + blockVerticalSpacer;
                 }
 
-                pushLeft = !pushLeft;
+                pushRight = !pushRight;
                 break;
             }
         }
