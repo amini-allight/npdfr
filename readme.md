@@ -27,7 +27,7 @@ Contributions are accepted.
 Make sure the following dependencies are available:
 
 - `cmake`
-- `libmupdf`
+- `libmupdf` (shared library version)
 - `make`
 - `ncursesw`
 
