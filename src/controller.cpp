@@ -315,7 +315,7 @@ void Controller::drawOutline(i32 x, i32* readY, i32* writeY, const vector<Outlin
 
                 i32 size = charwiseSize(part);
 
-                if (readX + size > panIndex)
+                if (readX + size > panIndex && (*writeY) < height - 1)
                 {
                     i32 remainingSize = size - max(panIndex - readX, 0);
                     i32 cutIndex = size - remainingSize;
