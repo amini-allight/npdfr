@@ -1,5 +1,5 @@
 /*
-Copyright 2024 Amini Allight
+Copyright 2025 Amini Allight
 
 This file is part of npdfr.
 
@@ -30,7 +30,7 @@ static void onInterrupt(int)
 int main(int argc, char** argv)
 {
     cout << format("{} {}.{}.{}", programName, majorVersion, minorVersion, patchVersion) << endl;
-    cout << "Copyright 2024 Amini Allight" << endl << endl;
+    cout << "Copyright 2025 Amini Allight" << endl << endl;
     cout << "This program comes with ABSOLUTELY NO WARRANTY; This is free software, and you are welcome to redistribute it under certain conditions. See the included license for further details." << endl << endl;
 
     if (argc == 1)

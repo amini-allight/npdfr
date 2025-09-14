@@ -1,5 +1,5 @@
 /*
-Copyright 2024 Amini Allight
+Copyright 2025 Amini Allight
 
 This file is part of npdfr.
 
@@ -120,6 +120,39 @@ i32 Document::outlinePageIndexAt(i32 selectIndex) const
     }
 
     return -1;
+}
+
+optional<string> Document::outlineAtPage(i32 pageIndex) const
+{
+    optional<Outline> lastOutline;
+
+    for (const Outline& outline : _outline)
+    {
+        if (outline.page() > pageIndex)
+        {
+            if (lastOutline)
+            {
+                return lastOutline->title();
+            }
+            else
+            {
+                return {};
+            }
+        }
+        else
+        {
+            lastOutline = outline;
+
+            optional<string> result = outline.atPage(pageIndex, &lastOutline);
+
+            if (result)
+            {
+                return result;
+            }
+        }
+    }
+
+    return {};
 }
 
 i32 Document::outlineWidth() const

@@ -1,5 +1,5 @@
 /*
-Copyright 2024 Amini Allight
+Copyright 2025 Amini Allight
 
 This file is part of npdfr.
 
@@ -32,6 +32,7 @@ public:
     const vector<Outline>& outline() const;
 
     i32 pageIndexAt(i32 selectIndex, i32* y) const;
+    optional<string> atPage(i32 pageIndex, optional<Outline>* lastOutline) const;
     i32 width() const;
     i32 height() const;
 

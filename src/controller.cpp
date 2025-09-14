@@ -1,5 +1,5 @@
 /*
-Copyright 2024 Amini Allight
+Copyright 2025 Amini Allight
 
 This file is part of npdfr.
 
@@ -117,26 +117,43 @@ void Controller::drawScreen() const
         drawOutline(blockHorizontalSpacer, &readY, &writeY, activeDocument().outline());
     }
 
+    optional<string> outlineName = activeDocument().outlineAtPage(activeView().pageIndex);
+
     string prompt;
 
-    prompt = format(
-        "{} ({}/{})",
-        activeDocumentName,
-        activeView().pageIndex + 1,
-        pages()
-    );
-
-    if (!search.empty())
+    if (outlineName)
     {
-        prompt += format(
+        prompt = format(
+            " {}/{} ({}/{})",
+            activeDocumentName,
+            *outlineName,
+            activeView().pageIndex + 1,
+            pages()
+        );
+    }
+    else
+    {
+        prompt = format(
             " {} ({}/{})",
-            search,
-            activeView().searchResultIndex + 1,
-            searchResults().size()
+            activeDocumentName,
+            activeView().pageIndex + 1,
+            pages()
         );
     }
 
     writeToScreen(height - 1, 0, prompt.c_str());
+
+    if (!search.empty())
+    {
+        string searchPrompt = format(
+            "{} ({}/{}) ",
+            search,
+            activeView().searchResultIndex + 1,
+            searchResults().size()
+        );
+
+        writeToScreen(height - 1, max(width - static_cast<i32>(searchPrompt.size()), 0), searchPrompt.c_str());
+    }
 }
 
 void Controller::handleInput()

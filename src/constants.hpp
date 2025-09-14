@@ -1,5 +1,5 @@
 /*
-Copyright 2024 Amini Allight
+Copyright 2025 Amini Allight
 
 This file is part of npdfr.
 
@@ -23,7 +23,7 @@ along with npdfr. If not, see <https://www.gnu.org/licenses/>.
 static constexpr const char* programName = "npdfr";
 static constexpr u32 majorVersion = 0;
 static constexpr u32 minorVersion = 3;
-static constexpr u32 patchVersion = 3;
+static constexpr u32 patchVersion = 4;
 
 static constexpr size_t maxSearchLength = 1024;
 static constexpr size_t maxPageNumberLength = 16;
