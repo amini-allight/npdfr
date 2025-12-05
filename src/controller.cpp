@@ -112,16 +112,32 @@ void Controller::drawScreen() const
     }
     else
     {
-        i32 readY = 0;
-        i32 writeY = 0;
-        drawOutline(blockHorizontalSpacer, &readY, &writeY, activeDocument().outline());
+        if (activeDocument().outline().empty())
+        {
+            string message = "No outline available.";
+
+            writeToScreen(height / 2, (width - message.size()) / 2, message);
+        }
+        else
+        {
+            i32 readY = 0;
+            i32 writeY = 0;
+            drawOutline(blockHorizontalSpacer, &readY, &writeY, activeDocument().outline());
+        }
     }
 
     optional<string> outlineName = activeDocument().outlineAtPage(activeView().pageIndex);
 
     string prompt;
 
-    if (outlineName)
+    if (activeView().viewingOutline)
+    {
+        prompt = format(
+            " {}",
+            activeDocumentName
+        );
+    }
+    else if (outlineName)
     {
         prompt = format(
             " {}/{} ({}/{})",
@@ -143,12 +159,12 @@ void Controller::drawScreen() const
 
     writeToScreen(height - 1, 0, prompt.c_str());
 
-    if (!search.empty())
+    if (!search.empty() && !activeView().viewingOutline)
     {
         string searchPrompt = format(
             "{} ({}/{}) ",
             search,
-            activeView().searchResultIndex + 1,
+            searchResults().size() == 0 ? 0 : activeView().searchResultIndex + 1,
             searchResults().size()
         );
 
@@ -173,6 +189,14 @@ void Controller::handleInput()
 void Controller::drawPage() const
 {
     const Page& page = activePage();
+
+    if (page.empty())
+    {
+        string message = "No textual page content.";
+
+        writeToScreen(height / 2, (width - message.size()) / 2, message);
+        return;
+    }
 
     const vector<vector<string>>& grid = page.grid();
 

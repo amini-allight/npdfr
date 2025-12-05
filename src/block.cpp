@@ -130,6 +130,19 @@ const string& Block::text() const
     return _text;
 }
 
+bool Block::empty() const
+{
+    for (const string& c : splitUTF8(_text))
+    {
+        if (!isWhitespace(c))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 vector<vector<string>> Block::grid() const
 {
     vector<vector<string>> grid(height(), vector<string>(width(), " "));

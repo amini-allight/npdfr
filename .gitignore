@@ -1,5 +1,3 @@
 bin/
 build/
-tests/
-venv/
 *.gz

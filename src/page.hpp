@@ -35,6 +35,7 @@ public:
     i32 width() const;
     i32 height() const;
     const vector<Block>& blocks() const;
+    bool empty() const;
 
     const vector<vector<string>>& grid() const;
     tuple<i32, i32> locateSearchInGrid(const SearchResultLocation& location) const;

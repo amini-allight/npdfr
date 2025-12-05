@@ -37,6 +37,7 @@ public:
     f64 top() const;
     f64 bottom() const;
     const string& text() const;
+    bool empty() const;
 
     vector<vector<string>> grid() const;
     tuple<i32, i32> locateSearchInGrid(const SearchResultLocation& location) const;

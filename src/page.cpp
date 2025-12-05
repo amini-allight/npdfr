@@ -165,6 +165,19 @@ const vector<Block>& Page::blocks() const
     return _blocks;
 }
 
+bool Page::empty() const
+{
+    for (const Block& block : _blocks)
+    {
+        if (!block.empty())
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 const vector<vector<string>>& Page::grid() const
 {
     return _grid;
